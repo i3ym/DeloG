@@ -22,6 +22,8 @@ namespace DeloG
             Rigidbody = GetComponent<Rigidbody>();
 
             Cursor.lockState = CursorLockMode.Locked;
+
+            Car.enabled = false;
         }
 
         void Update()

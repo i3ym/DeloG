@@ -46,5 +46,11 @@ namespace DeloG
             SteeringWheel.Rotate(SteeringWheel.up, -(SteeringWheelAngle - steerangle), Space.World);
             SteeringWheelAngle = steerangle;
         }
+
+        void OnDisable()
+        {
+            foreach (var wheel in Wheels)
+                wheel.SetInputs(0, 0, 0);
+        }
     }
 }
