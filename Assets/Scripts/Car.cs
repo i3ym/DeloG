@@ -32,8 +32,11 @@ namespace DeloG
         void FixedUpdate()
         {
             var isbrake = Input.GetKey(KeyCode.Space);
-            var brake = isbrake ? MotorTorque : 0;
-            var torque = isbrake ? 0 : Input.GetAxis("Vertical") * MotorTorque;
+            var isfast = Input.GetKey(KeyCode.LeftShift);
+
+            var speed = isfast ? MotorTorqueFast : MotorTorque;
+            var brake = isbrake ? speed : 0;
+            var torque = isbrake ? 0 : Input.GetAxis("Vertical") * speed;
             var angle = Input.GetAxis("Horizontal") * MaxWheelAngle;
 
             foreach (var wheel in Wheels)
