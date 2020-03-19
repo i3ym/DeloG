@@ -13,14 +13,21 @@ namespace DeloG
         [SerializeField] public Transform PlayerPosition = null;
         [SerializeField] Transform SteeringWheel = null;
         IReadOnlyCollection<Wheel> Wheels;
+        Camera Camera;
 
         float SteeringWheelAngle = 0f;
         Vector3 StartSteeringWheelRotation;
 
         public void Start()
         {
-            gameObject.layer = LayerMask.NameToLayer("car");
+            var carlayer = LayerMask.NameToLayer("car");
+            gameObject.layer = carlayer;
+            for (int i = 0; i < transform.childCount; i++)
+                if (transform.GetChild(0).gameObject.layer == 0)
+                    transform.GetChild(0).gameObject.layer = carlayer;
+
             Wheels = GetComponentsInChildren<Wheel>();
+            Camera = Camera.main;
 
             foreach (var wheel in Wheels)
                 wheel.WheelCollider.ConfigureVehicleSubsteps(5, 12, 15);
@@ -30,6 +37,10 @@ namespace DeloG
         }
 
         void FixedUpdate()
+        {
+            DoMovement();
+        }
+        void DoMovement()
         {
             var isbrake = Input.GetKey(KeyCode.Space);
             var isfast = Input.GetKey(KeyCode.LeftShift);

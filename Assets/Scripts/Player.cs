@@ -6,7 +6,7 @@ namespace DeloG
     {
         [SerializeField] Car Car = null;
 
-        int CarLayerMask;
+        int CarLayerMask, InteractableLayerMask;
         Camera Camera;
         PlayerMove PlayerMove;
         Collider Collider;
@@ -14,6 +14,7 @@ namespace DeloG
 
         void Start()
         {
+            InteractableLayerMask = LayerMask.GetMask("interactable");
             CarLayerMask = LayerMask.GetMask("car");
             Camera = Camera.main;
 
@@ -31,9 +32,18 @@ namespace DeloG
             if (Input.GetKeyDown(KeyCode.Escape))
                 Cursor.lockState = CursorLockMode.None;
 
+            TryInteract();
             TryEnterCar();
         }
 
+        void TryInteract()
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                var raycast = Physics.Raycast(Camera.transform.position, Camera.transform.forward, out var hit, 10f, InteractableLayerMask);
+                if (raycast) hit.collider.GetComponent<Interactable>().DoInteraction();
+            }
+        }
         void TryEnterCar()
         {
             if (!Input.GetKeyDown(KeyCode.F)) return;
