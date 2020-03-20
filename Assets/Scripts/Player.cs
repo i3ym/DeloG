@@ -55,6 +55,7 @@ namespace DeloG
             car.enabled = false;
             transform.localPosition = CarEnterLocalPos;
             transform.SetParent(null);
+            transform.localRotation = default;
             Rigidbody.isKinematic = false;
         }
     }
