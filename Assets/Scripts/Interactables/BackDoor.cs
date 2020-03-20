@@ -12,13 +12,13 @@ namespace DeloG.Interactables
             while (anim.MoveNext())
                 yield return anim.Current;
 
-            anim = Animator.MoveTo(transform, transform.localPosition + new Vector3(0f, 0, -1.7f), 1f, Easing.Linear);
+            anim = Animator.MoveTo(transform, transform.localPosition + new Vector3(0f, 0, -1.7f), 1f, Easing.OutCubic);
             while (anim.MoveNext())
                 yield return anim.Current;
         }
         public override IEnumerator CloseAnimation()
         {
-            var anim = Animator.MoveTo(transform, transform.localPosition - new Vector3(0f, 0, -1.7f), 1f, Easing.Linear);
+            var anim = Animator.MoveTo(transform, transform.localPosition - new Vector3(0f, 0, -1.7f), 1f, Easing.OutCubic);
             while (anim.MoveNext())
                 yield return anim.Current;
 
