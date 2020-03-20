@@ -25,11 +25,16 @@ namespace DeloG
             var startt = Time.time;
             var endt = startt + time;
             var start = transform.localRotation;
+            var rigidbody = transform.GetComponent<Rigidbody>();
 
             while (Time.time < endt)
             {
                 yield return null;
-                transform.localRotation = Quaternion.Lerp(start, end, easing((Time.time - startt) / time));
+
+                var rot = Quaternion.Lerp(start, end, easing((Time.time - startt) / time));
+
+                if (rigidbody != null) rigidbody.rotation = rot;
+                else transform.localRotation = rot;
             }
         }
     }
