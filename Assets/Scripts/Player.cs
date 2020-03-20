@@ -14,7 +14,7 @@ namespace DeloG
 
         void Start()
         {
-            InteractableLayerMask = LayerMask.GetMask("interactable");
+            InteractableLayerMask = LayerMask.GetMask("interactable", "car");
             CarLayerMask = LayerMask.GetMask("car");
             Camera = Camera.main;
 
@@ -41,7 +41,7 @@ namespace DeloG
             if (Input.GetMouseButtonDown(0))
             {
                 var raycast = Physics.Raycast(Camera.transform.position, Camera.transform.forward, out var hit, 10f, InteractableLayerMask);
-                if (raycast) hit.collider.GetComponent<Interactable>().DoInteraction();
+                if (raycast) hit.collider.GetComponent<Interactable>()?.DoInteraction();
             }
         }
         void TryEnterCar()

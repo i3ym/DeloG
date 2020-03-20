@@ -5,10 +5,11 @@ namespace DeloG
 {
     public class Car : MonoBehaviour
     {
-        const float MotorTorque = 500; // скорость
-        const float MotorTorqueFast = 800; // скорость на шифт
         const float MaxWheelAngle = 45; // максимальный угол поворота колёс
         const float SteeringWheelMultiplier = 6; // умножение кручение руля
+
+        [SerializeField] float MotorTorque = 500; // скорость
+        float MotorTorqueFast => MotorTorque * 1.5f; // скорость на шифт
 
         [SerializeField] public Transform PlayerPosition = null;
         [SerializeField] Transform SteeringWheel = null;
@@ -20,12 +21,6 @@ namespace DeloG
 
         public void Start()
         {
-            var carlayer = LayerMask.NameToLayer("car");
-            gameObject.layer = carlayer;
-            for (int i = 0; i < transform.childCount; i++)
-                if (transform.GetChild(0).gameObject.layer == 0)
-                    transform.GetChild(0).gameObject.layer = carlayer;
-
             Wheels = GetComponentsInChildren<Wheel>();
             Camera = Camera.main;
 
