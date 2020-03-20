@@ -38,7 +38,7 @@ namespace DeloG
             var isfast = Input.GetKey(KeyCode.LeftShift);
 
             var speed = isfast ? MotorTorqueFast : MotorTorque;
-            var brake = isbrake ? speed : 0;
+            var brake = isbrake ? speed * 5 : 0;
             var torque = isbrake ? 0 : Input.GetAxis("Vertical") * speed;
             var angle = Input.GetAxis("Horizontal") * MaxWheelAngle;
 
