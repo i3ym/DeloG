@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace DeloG
+namespace DeloG.Interactables
 {
     public class DoorLever : Lever
     {

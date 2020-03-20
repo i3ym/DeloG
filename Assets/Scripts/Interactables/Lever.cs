@@ -1,4 +1,4 @@
-namespace DeloG
+namespace DeloG.Interactables
 {
     public abstract class Lever : Interactable
     {

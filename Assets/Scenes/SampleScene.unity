@@ -185,8 +185,8 @@ Transform:
   m_Children:
   - {fileID: 946185296}
   - {fileID: 1434790381}
-  - {fileID: 1054818922}
   - {fileID: 672785952}
+  - {fileID: 1054818922}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -493,7 +493,7 @@ GameObject:
   - component: {fileID: 672785952}
   - component: {fileID: 672785953}
   m_Layer: 0
-  m_Name: light
+  m_Name: topLight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -511,7 +511,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 126711255}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!108 &672785953
 Light:
@@ -1318,29 +1318,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9bef62378dc7ec99a949eaad518944a6, type: 3}
---- !u!1 &946185295 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -927199367670048503, guid: 9bef62378dc7ec99a949eaad518944a6, type: 3}
-  m_PrefabInstance: {fileID: 894029698}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &946185296 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 9bef62378dc7ec99a949eaad518944a6, type: 3}
   m_PrefabInstance: {fileID: 894029698}
   m_PrefabAsset: {fileID: 0}
---- !u!65 &946185297
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 946185295}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Size: {x: 2.649029, y: 2.445826, z: 7.1545315}
-  m_Center: {x: -0.013387342, y: 1.6403303, z: -3.1799258e-17}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -1542,14 +1524,14 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 126711255}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1083545625 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -3339283903321618650, guid: 9bef62378dc7ec99a949eaad518944a6, type: 3}
   m_PrefabInstance: {fileID: 894029698}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1083545629
+--- !u!114 &1083545626
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1558,7 +1540,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1083545625}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af2b10d50ce659925bc2965db08ee689, type: 3}
+  m_Script: {fileID: 11500000, guid: 88cc565e4f9591351bb2d57d92a246a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Door: {fileID: 632428095}
@@ -2461,8 +2443,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1750902439}
-  - component: {fileID: 1750902440}
   - component: {fileID: 1750902441}
+  - component: {fileID: 1750902440}
   m_Layer: 8
   m_Name: RayCollider
   m_TagString: Untagged
@@ -2731,7 +2713,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1884229317}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c4559e16e4dacfa79456f57c0254a3c, type: 3}
+  m_Script: {fileID: 11500000, guid: 6a3ee8b839bd6100e9842869cdf8a091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Lights:

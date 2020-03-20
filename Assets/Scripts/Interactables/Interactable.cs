@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace DeloG
+namespace DeloG.Interactables
 {
     public abstract class Interactable : MonoBehaviour
     {

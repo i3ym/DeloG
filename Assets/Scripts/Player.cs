@@ -1,4 +1,5 @@
 using UnityEngine;
+using DeloG.Interactables;
 
 namespace DeloG
 {
