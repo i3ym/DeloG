@@ -400,6 +400,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0f616f0ed0fd409d981daa33b70bd7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Light: {fileID: 672785953}
 --- !u!65 &383775514
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -643,7 +644,7 @@ Light:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 672785951}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
