@@ -2,7 +2,7 @@ namespace DeloG.Interactables
 {
     public abstract class Lever : Interactable
     {
-        protected bool IsToggled = false;
+        public bool IsToggled { get; private set; } = false;
 
         public override void DoInteraction()
         {
