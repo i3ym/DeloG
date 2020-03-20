@@ -31,10 +31,7 @@ namespace DeloG
             enabled = false;
         }
 
-        void FixedUpdate()
-        {
-            DoMovement();
-        }
+        void FixedUpdate() => DoMovement();
         void DoMovement()
         {
             var isbrake = Input.GetKey(KeyCode.Space);
