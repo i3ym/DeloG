@@ -15,6 +15,7 @@ namespace DeloG
         [SerializeField] Transform SteeringWheel = null;
         IReadOnlyCollection<Wheel> Wheels;
         Camera Camera;
+        public bool IsTurnedOn = false;
 
         float SteeringWheelAngle = 0f;
         Vector3 StartSteeringWheelRotation;
@@ -34,20 +35,28 @@ namespace DeloG
         void FixedUpdate() => DoMovement();
         void DoMovement()
         {
+            var angle = Input.GetAxis("Horizontal") * MaxWheelAngle;
+            var steerangle = angle * SteeringWheelMultiplier;
+            SteeringWheel.Rotate(SteeringWheel.up, -(SteeringWheelAngle - steerangle), Space.World);
+            SteeringWheelAngle = steerangle;
+
+            if (!IsTurnedOn)
+            {
+                foreach (var wheel in Wheels)
+                    wheel.SetInputs(0, 0, angle);
+
+                return;
+            }
+
             var isbrake = Input.GetKey(KeyCode.Space);
             var isfast = Input.GetKey(KeyCode.LeftShift);
 
             var speed = isfast ? MotorTorqueFast : MotorTorque;
             var brake = isbrake ? speed * 5 : 0;
             var torque = isbrake ? 0 : Input.GetAxis("Vertical") * speed;
-            var angle = Input.GetAxis("Horizontal") * MaxWheelAngle;
 
             foreach (var wheel in Wheels)
                 wheel.SetInputs(torque, brake, angle);
-
-            var steerangle = angle * SteeringWheelMultiplier;
-            SteeringWheel.Rotate(SteeringWheel.up, -(SteeringWheelAngle - steerangle), Space.World);
-            SteeringWheelAngle = steerangle;
         }
 
         void OnDisable()
