@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,8 @@ namespace DeloG
         const float MaxWheelAngle = 45; // максимальный угол поворота колёс
         const float SteeringWheelMultiplier = 6; // умножение кручение руля
 
+        public event Action<bool> OnChangeState = delegate { };
+
         [SerializeField] float MotorTorque = 500; // скорость
         float MotorTorqueFast => MotorTorque * 1.5f; // скорость на шифт
 
@@ -15,7 +18,14 @@ namespace DeloG
         [SerializeField] Transform SteeringWheel = null;
         IReadOnlyCollection<Wheel> Wheels;
         Camera Camera;
-        public bool IsTurnedOn = false;
+
+        public bool IsHandbrakeOn = false;
+        public bool IsTurnedOn
+        {
+            get => _IsTurnedOn;
+            set => OnChangeState(_IsTurnedOn = value);
+        }
+        [HideInInspector] bool _IsTurnedOn = false;
 
         float SteeringWheelAngle = 0f;
         Vector3 StartSteeringWheelRotation;
@@ -40,20 +50,19 @@ namespace DeloG
             SteeringWheel.Rotate(SteeringWheel.up, -(SteeringWheelAngle - steerangle), Space.World);
             SteeringWheelAngle = steerangle;
 
-            if (!IsTurnedOn)
+            float torque = 0;
+            float brake = 0;
+
+            if (IsTurnedOn)
             {
-                foreach (var wheel in Wheels)
-                    wheel.SetInputs(0, 0, angle);
+                var isbrake = Input.GetKey(KeyCode.Space);
+                var isfast = Input.GetKey(KeyCode.LeftShift);
 
-                return;
+                var speed = isfast ? MotorTorqueFast : MotorTorque;
+                brake = isbrake ? speed * 5 : 0;
+                torque = isbrake ? 0 : Input.GetAxis("Vertical") * speed;
             }
-
-            var isbrake = Input.GetKey(KeyCode.Space);
-            var isfast = Input.GetKey(KeyCode.LeftShift);
-
-            var speed = isfast ? MotorTorqueFast : MotorTorque;
-            var brake = isbrake ? speed * 5 : 0;
-            var torque = isbrake ? 0 : Input.GetAxis("Vertical") * speed;
+            if (IsHandbrakeOn) brake = MotorTorqueFast * 100;
 
             foreach (var wheel in Wheels)
                 wheel.SetInputs(torque, brake, angle);
