@@ -41,7 +41,7 @@ namespace DeloG
         {
             PlayerMove.enabled = false;
             Collider.enabled = false;
-            car.enabled = true;
+            car.Enabled = true;
             transform.SetParent(car.transform);
             CarEnterLocalPos = transform.localPosition;
             transform.localPosition = car.PlayerPosition.localPosition;
@@ -52,7 +52,7 @@ namespace DeloG
         {
             PlayerMove.enabled = true;
             Collider.enabled = true;
-            car.enabled = false;
+            car.Enabled = false;
             transform.localPosition = CarEnterLocalPos;
             transform.SetParent(null);
             transform.localRotation = default;

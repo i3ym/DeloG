@@ -25,6 +25,7 @@ namespace DeloG
             get => _IsTurnedOn;
             set => OnChangeState(_IsTurnedOn = value);
         }
+        public bool Enabled = false;
         [HideInInspector] bool _IsTurnedOn = false;
 
         float SteeringWheelAngle = 0f;
@@ -39,12 +40,19 @@ namespace DeloG
                 wheel.WheelCollider.ConfigureVehicleSubsteps(5, 12, 15);
 
             StartSteeringWheelRotation = SteeringWheel.localEulerAngles;
-            enabled = false;
         }
 
         void FixedUpdate() => DoMovement();
         void DoMovement()
         {
+            if (!Enabled)
+            {
+                foreach (var wheel in Wheels)
+                    wheel.SetInputs(0, 0, 0);
+
+                return;
+            }
+
             var angle = Input.GetAxis("Horizontal") * MaxWheelAngle;
             var steerangle = angle * SteeringWheelMultiplier;
             SteeringWheel.Rotate(SteeringWheel.up, -(SteeringWheelAngle - steerangle), Space.World);

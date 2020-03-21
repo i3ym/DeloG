@@ -17,9 +17,11 @@ namespace DeloG
 
         void FixedUpdate()
         {
+            var speed = Input.GetKey(KeyCode.LeftShift) ? WalkingSpeed * 1.5f : WalkingSpeed;
+
             Rigidbody.velocity =
-                new Vector3(Camera.transform.forward.x, 0, Camera.transform.forward.z).normalized * Input.GetAxis("Vertical") * WalkingSpeed
-                + Camera.transform.right * Input.GetAxis("Horizontal") * WalkingSpeed
+                new Vector3(Camera.transform.forward.x, 0, Camera.transform.forward.z).normalized * Input.GetAxis("Vertical") * speed
+                + Camera.transform.right * Input.GetAxis("Horizontal") * speed
                 + new Vector3(0, Rigidbody.velocity.y, 0);
         }
     }
