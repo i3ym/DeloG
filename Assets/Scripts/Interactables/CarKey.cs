@@ -1,22 +1,16 @@
+using System;
 using UnityEngine;
+using UnityEngine.UIElements.Experimental;
 
 namespace DeloG.Interactables
 {
-    public class CarKey : Lever
+    public class CarKey : RotateLever
     {
-        const float KeyAngle = 90f; // угол поворота ключей зажигания
+        protected override Quaternion ToggledRotation { get; } = Quaternion.Euler(0, 0, -90);
+        protected override Func<float, float> ToggleEasing { get; } = Easing.OutQuad;
+        protected override Func<float, float> UntoggleEasing { get; } = Easing.OutQuad;
+        protected override float AnimTime { get; } = .5f;
 
-        [SerializeField] Car Car = null;
-
-        protected override void OnToggle()
-        {
-            Car.IsTurnedOn = true;
-            transform.Rotate(transform.forward, -KeyAngle, Space.World);
-        }
-        protected override void OnUntoggle()
-        {
-            Car.IsTurnedOn = false;
-            transform.Rotate(transform.forward, KeyAngle, Space.World);
-        }
+        protected override void OnToggle(bool toggled) => Car.IsTurnedOn = toggled;
     }
 }

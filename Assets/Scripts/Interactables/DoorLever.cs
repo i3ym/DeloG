@@ -1,5 +1,5 @@
+using System.Collections;
 using UnityEngine;
-using UnityEngine.UIElements.Experimental;
 
 namespace DeloG.Interactables
 {
@@ -7,7 +7,9 @@ namespace DeloG.Interactables
     {
         [SerializeField] Door Door = null;
 
-        protected override void OnToggle() => StartCoroutine(Door.OpenAnimation());
-        protected override void OnUntoggle() => StartCoroutine(Door.CloseAnimation());
+        protected override void OnToggle(bool toggled) { }
+
+        protected override IEnumerator ToggleAnimation() => Door.OpenAnimation();
+        protected override IEnumerator UntoggleAnimation() => Door.CloseAnimation();
     }
 }

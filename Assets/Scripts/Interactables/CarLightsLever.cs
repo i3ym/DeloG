@@ -1,16 +1,16 @@
+using System.Collections;
 using UnityEngine;
 
 namespace DeloG.Interactables
 {
     public class CarLightsLever : Lever
     {
-        [SerializeField] Car Car = null;
         [SerializeField] Light[] Lights = null;
 
         protected override void Start()
         {
             base.Start();
-            OnUntoggle();
+            OnToggle(false);
 
             Car.OnChangeState += (on) =>
             {
@@ -20,15 +20,19 @@ namespace DeloG.Interactables
             };
         }
 
-        protected override void OnToggle()
+        protected override void OnToggle(bool toggled)
         {
             foreach (var light in Lights)
-                light.enabled = Car.IsTurnedOn;
+                light.enabled = toggled && Car.IsTurnedOn;
         }
-        protected override void OnUntoggle()
+
+        protected override IEnumerator ToggleAnimation()
         {
-            foreach (var light in Lights)
-                light.enabled = false;
+            return System.Linq.Enumerable.Empty<object>().GetEnumerator();
+        }
+        protected override IEnumerator UntoggleAnimation()
+        {
+            return System.Linq.Enumerable.Empty<object>().GetEnumerator();
         }
     }
 }
