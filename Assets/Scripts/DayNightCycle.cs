@@ -7,16 +7,18 @@ namespace DeloG
         const float SecondsInDay = 120; // секунд в дне
 
         [SerializeField] Light Sun;
+        [SerializeField] bool IsPaused = false;
         [Range(0, 1)] public float Time = 0;
 
         float SunInitialIntensity;
 
         void Start() => SunInitialIntensity = Sun.intensity;
-
         void Update()
         {
             UpdateSun();
-            Time = (Time + (UnityEngine.Time.deltaTime / SecondsInDay)) % 1;
+
+            if (!IsPaused)
+                Time = (Time + (UnityEngine.Time.deltaTime / SecondsInDay)) % 1;
         }
 
         void UpdateSun()
