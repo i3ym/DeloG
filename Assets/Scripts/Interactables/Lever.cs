@@ -10,7 +10,7 @@ namespace DeloG.Interactables
         public bool IsToggled { get; private set; } = false;
         Coroutine Animation;
 
-        public override void DoInteraction()
+        public override void DoInteraction(Player player)
         {
             IsToggled = !IsToggled;
 

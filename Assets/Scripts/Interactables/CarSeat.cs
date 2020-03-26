@@ -4,7 +4,6 @@ namespace DeloG.Interactables
 {
     public class CarSeat : Interactable
     {
-        [SerializeField] Player Player = null;
         [SerializeField] Car Car = null;
         [SerializeField] CarSeatOut ExitCarObject = null;
 
@@ -12,17 +11,17 @@ namespace DeloG.Interactables
         {
             base.Start();
 
-            ExitCarObject.OnInteraction += () =>
+            ExitCarObject.OnInteraction += (player) =>
             {
-                Player.ExitCar(Car);
+                player.ExitCar(Car);
                 ExitCarObject.gameObject.SetActive(false);
             };
             ExitCarObject.gameObject.SetActive(false);
         }
 
-        public override void DoInteraction()
+        public override void DoInteraction(Player player)
         {
-            Player.EnterCar(Car);
+            player.EnterCar(Car);
             ExitCarObject.gameObject.SetActive(true);
         }
     }

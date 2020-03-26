@@ -1,10 +1,15 @@
 using UnityEngine;
 using DeloG.Interactables;
+using DeloG.Items;
 
 namespace DeloG
 {
     public class Player : MonoBehaviour
     {
+        const float ThrowItemForce = 20; // сила бросания предмета
+
+        [SerializeField] Transform ItemPositionTransform = null;
+
         int CarLayerMask, InteractableLayerMask;
         Camera Camera;
         PlayerMove PlayerMove;
@@ -12,6 +17,9 @@ namespace DeloG
         Rigidbody Rigidbody;
 
         Vector3 CarEnterLocalPos;
+        Interactable HighlightingInteractable;
+
+        Item CurrentItem;
 
         void Start()
         {
@@ -30,10 +38,27 @@ namespace DeloG
             if (Input.GetKeyDown(KeyCode.Escape))
                 Cursor.lockState = CursorLockMode.None;
 
-            if (Input.GetMouseButtonDown(0))
+            var raycast = Physics.Raycast(Camera.transform.position, Camera.transform.forward, out var hit, 10f, InteractableLayerMask);
+
+            Interactable interactable;
+            if (raycast && (interactable = hit.collider.GetComponent<Interactable>()) != null)
             {
-                var raycast = Physics.Raycast(Camera.transform.position, Camera.transform.forward, out var hit, 10f, InteractableLayerMask);
-                if (raycast) hit.collider.GetComponent<Interactable>()?.DoInteraction();
+                if (HighlightingInteractable != interactable)
+                {
+                    if (HighlightingInteractable != null)
+                        HighlightingInteractable.StopHighlighting();
+
+                    HighlightingInteractable = interactable;
+                    interactable.StartHighlighting();
+                }
+
+                if (Input.GetMouseButtonDown(0)) interactable.DoInteraction(this);
+            }
+            else if (Input.GetMouseButtonDown(0) && CurrentItem != null) ThrowCurrentItem();
+            else if (HighlightingInteractable != null)
+            {
+                HighlightingInteractable.StopHighlighting();
+                HighlightingInteractable = null;
             }
         }
 
@@ -57,6 +82,25 @@ namespace DeloG
             transform.SetParent(null);
             transform.localRotation = default;
             Rigidbody.isKinematic = false;
+        }
+
+        public void Pickup(Item item)
+        {
+            CurrentItem = item;
+            item.transform.SetParent(ItemPositionTransform);
+            item.transform.localPosition = Vector3.zero;
+            item.transform.localRotation = Quaternion.identity;
+            item.Rigidbody.isKinematic = true;
+            item.Collider.isTrigger = true;
+        }
+        public void ThrowCurrentItem()
+        {
+            CurrentItem.transform.SetParent(null);
+            CurrentItem.Rigidbody.isKinematic = false;
+            CurrentItem.Collider.isTrigger = false;
+            CurrentItem.Rigidbody.AddForce(Camera.transform.forward * ThrowItemForce, ForceMode.Impulse);
+
+            CurrentItem = null;
         }
     }
 }
