@@ -8,7 +8,7 @@ namespace DeloG
 
         [SerializeField] Light Sun;
         [SerializeField] bool IsPaused = false;
-        [Range(0, 1)] public float Time = 0;
+        [Range(0, 1)] public float Time = .5f;
 
         float SunInitialIntensity;
 
