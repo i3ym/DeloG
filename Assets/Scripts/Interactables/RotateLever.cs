@@ -18,7 +18,7 @@ namespace DeloG.Interactables
             StartRotation = transform.localRotation;
         }
 
-        protected sealed override IEnumerator ToggleAnimation() => Animator.RotateTo(transform, ToggledRotation, AnimTime, ToggleEasing);
-        protected sealed override IEnumerator UntoggleAnimation() => Animator.RotateTo(transform, StartRotation, AnimTime, UntoggleEasing);
+        protected sealed override IEnumerator ToggleAnimation() => Animator.RotateToLocal(transform, ToggledRotation, AnimTime, ToggleEasing);
+        protected sealed override IEnumerator UntoggleAnimation() => Animator.RotateToLocal(transform, StartRotation, AnimTime, UntoggleEasing);
     }
 }

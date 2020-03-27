@@ -7,8 +7,8 @@ namespace DeloG.Interactables
     public class RightDoor : LeftDoor
     {
         public override IEnumerator OpenAnimation() =>
-            Animator.RotateTo(transform, new Quaternion(0, -MaxAngle / 90f, 0, 1), 1f, Easing.OutCubic);
+            Animator.RotateToLocal(transform, new Quaternion(0, -MaxAngle / 90f, 0, 1), 1f, Easing.OutCubic);
         public override IEnumerator CloseAnimation() =>
-            Animator.RotateTo(transform, Quaternion.identity, 1f, Easing.OutCubic);
+            Animator.RotateToLocal(transform, Quaternion.identity, 1f, Easing.OutCubic);
     }
 }
