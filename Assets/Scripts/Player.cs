@@ -11,7 +11,6 @@ namespace DeloG
 
         [SerializeField] Transform ItemPositionTransform = null;
 
-        int CarLayerMask, InteractableLayerMask;
         public Camera Camera { get; private set; }
         public PlayerMove PlayerMove { get; private set; }
         public Collider Collider { get; private set; }
@@ -20,12 +19,10 @@ namespace DeloG
         Vector3 CarEnterLocalPos;
         Interactable HighlightingInteractable;
 
-        Item CurrentItem;
+        public Item CurrentItem { get; private set; }
 
         void Start()
         {
-            InteractableLayerMask = LayerMask.GetMask("interactable", "car");
-            CarLayerMask = LayerMask.GetMask("car");
             Camera = Camera.main;
 
             PlayerMove = gameObject.AddComponent<PlayerMove>();
@@ -39,10 +36,11 @@ namespace DeloG
             if (Input.GetKeyDown(KeyCode.Escape))
                 Cursor.lockState = CursorLockMode.None;
 
-            var raycast = Physics.Raycast(Camera.transform.position, Camera.transform.forward, out var hit, 10f, InteractableLayerMask);
-            var interacted = raycast && TryInteract(hit);
+            var raycast = Raycast.RaycastInteractable(Camera.transform, out var hit);
+            var iscar = raycast && hit.collider.gameObject.layer == LayerMask.NameToLayer("car");
+            var interacted = raycast && !iscar && TryInteract(hit);
 
-            if (!raycast && HighlightingInteractable != null)
+            if ((!raycast || iscar) && HighlightingInteractable != null)
             {
                 HighlightingInteractable.StopHighlighting();
                 HighlightingInteractable = null;
@@ -52,7 +50,7 @@ namespace DeloG
             {
                 if (Input.GetMouseButtonDown(0)) UseCurrentItem();
                 else if (Input.GetMouseButtonDown(1)) ThrowCurrentItem();
-                else if (Input.GetKeyDown(KeyCode.Q)) ReleaseCurrentItem();
+                else if (Input.GetKeyDown(KeyCode.Q)) DropCurrentItem();
             }
         }
 
@@ -103,16 +101,21 @@ namespace DeloG
 
         public void Pickup(Item item)
         {
-            if (CurrentItem != null) ReleaseCurrentItem();
+            if (CurrentItem != null) DropCurrentItem();
 
             CurrentItem = item;
-            item.transform.SetParent(ItemPositionTransform);
             item.Rigidbody.isKinematic = true;
             item.Collider.isTrigger = true;
 
             const float timeToPickup = .3f;
-            StartCoroutine(Animator.MoveToWorld(item.transform, () => ItemPositionTransform.position, timeToPickup, Easing.OutQuad));
-            StartCoroutine(Animator.RotateToLocal(item.transform, Quaternion.identity, timeToPickup, Easing.OutQuad));
+
+            StartCoroutine(Animator.AnimateConcurrent(
+                new[]
+                {
+                    Animator.MoveToWorld(item.transform, () => ItemPositionTransform.position, timeToPickup, Easing.OutQuad),
+                    Animator.RotateToLocal(item.transform, () => ItemPositionTransform.rotation * item.PlayerRotation, timeToPickup, Easing.OutQuad)
+                },
+                () => item.transform.SetParent(ItemPositionTransform)));
         }
         public void ThrowCurrentItem()
         {
@@ -125,7 +128,7 @@ namespace DeloG
 
             CurrentItem = null;
         }
-        public void ReleaseCurrentItem()
+        public void DropCurrentItem()
         {
             if (CurrentItem is null) return;
 
@@ -133,10 +136,6 @@ namespace DeloG
             CurrentItem.Rigidbody.isKinematic = false;
             CurrentItem.Collider.isTrigger = false;
         }
-        public void UseCurrentItem()
-        {
-            if (CurrentItem is null) return;
-            CurrentItem.Use(this);
-        }
+        public void UseCurrentItem() => CurrentItem?.Use(this);
     }
 }

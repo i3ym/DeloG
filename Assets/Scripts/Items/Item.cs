@@ -8,6 +8,7 @@ namespace DeloG.Items
     {
         public Rigidbody Rigidbody { get; private set; }
         public Collider Collider { get; private set; }
+        public virtual Quaternion PlayerRotation { get; } = Quaternion.identity;
 
         protected override void Start()
         {
@@ -18,7 +19,7 @@ namespace DeloG.Items
             Collider.isTrigger = false;
         }
 
-        public override void DoInteraction(Player player) => player.Pickup(this);
+        public sealed override void DoInteraction(Player player) => player.Pickup(this);
         public virtual void Use(Player player) { }
     }
 }

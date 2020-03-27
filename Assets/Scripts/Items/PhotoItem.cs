@@ -4,6 +4,8 @@ namespace DeloG.Items
 {
     public class PhotoItem : Item
     {
+        public override Quaternion PlayerRotation { get; } = Quaternion.Euler(-80, 0, 0);
+
         public Texture Image
         {
             get => ImageRenderer.material.mainTexture;
