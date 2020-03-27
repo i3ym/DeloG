@@ -19,12 +19,13 @@ namespace DeloG
         {
             bool exit = false;
 
-            while (!exit)
+            while (true)
             {
                 exit = true;
                 foreach (var animation in animations)
-                    if (animation.MoveNext()) exit = false;
+                    exit = exit & !animation.MoveNext();
 
+                if (exit) break;
                 yield return null;
             }
 
@@ -32,25 +33,17 @@ namespace DeloG
         }
 
         public static IEnumerator Animate<TVal>(TVal start, TVal end, float time,
-            Func<TVal, TVal, float, TVal> lerpFunc, Func<float, float> easingFunc, Action<TVal> setFunc)
-        {
-            var anim = Animate(start, end, time, lerpFunc, easingFunc);
-
-            while (anim.MoveNext())
-            {
-                yield return null;
-                setFunc(anim.Current);
-            }
-        }
+            Func<TVal, TVal, float, TVal> lerpFunc, Func<float, float> easingFunc, Action<TVal> setFunc) =>
+            Animate(Animate(start, end, time, lerpFunc, easingFunc), setFunc);
         public static IEnumerator Animate<TVal>(TVal start, Func<TVal> end, float time,
-            Func<TVal, TVal, float, TVal> lerpFunc, Func<float, float> easingFunc, Action<TVal> setFunc)
+            Func<TVal, TVal, float, TVal> lerpFunc, Func<float, float> easingFunc, Action<TVal> setFunc) =>
+            Animate(Animate(start, end, time, lerpFunc, easingFunc), setFunc);
+        static IEnumerator Animate<TVal>(IEnumerator<TVal> anim, Action<TVal> setFunc)
         {
-            var anim = Animate(start, end, time, lerpFunc, easingFunc);
-
             while (anim.MoveNext())
             {
-                yield return null;
                 setFunc(anim.Current);
+                yield return null;
             }
         }
 
@@ -73,6 +66,8 @@ namespace DeloG
 
             do yield return lerpFunc(start, end(), easingFunc((Time.time - startt) / time));
             while (Time.time < endt);
+
+            yield return end();
         }
 
         public static IEnumerator MoveToLocal(Transform transform, Vector3 end, float time, Func<float, float> easing) =>

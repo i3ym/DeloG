@@ -59,7 +59,7 @@ namespace DeloG
             var interactable = hit.collider.GetComponent<Interactable>();
             if (interactable is null) return false;
 
-            if (HighlightingInteractable != interactable)
+            if (HighlightingInteractable != interactable && interactable != CurrentItem)
             {
                 if (HighlightingInteractable != null)
                     HighlightingInteractable.StopHighlighting();
@@ -106,6 +106,7 @@ namespace DeloG
             CurrentItem = item;
             item.Rigidbody.isKinematic = true;
             item.Collider.isTrigger = true;
+            CurrentItem.gameObject.layer = LayerMask.NameToLayer("Default");
 
             const float timeToPickup = .3f;
 
@@ -115,7 +116,12 @@ namespace DeloG
                     Animator.MoveToWorld(item.transform, () => ItemPositionTransform.position, timeToPickup, Easing.OutQuad),
                     Animator.RotateToLocal(item.transform, () => ItemPositionTransform.rotation * item.PlayerRotation, timeToPickup, Easing.OutQuad)
                 },
-                () => item.transform.SetParent(ItemPositionTransform)));
+                () =>
+                {
+                    item.transform.SetParent(ItemPositionTransform);
+                    item.transform.localPosition = Vector3.zero;
+                    item.transform.localRotation = item.PlayerRotation;
+                }));
         }
         public void ThrowCurrentItem()
         {
@@ -124,6 +130,7 @@ namespace DeloG
             CurrentItem.transform.SetParent(null);
             CurrentItem.Rigidbody.isKinematic = false;
             CurrentItem.Collider.isTrigger = false;
+            CurrentItem.gameObject.layer = LayerMask.NameToLayer("interactable");
             CurrentItem.Rigidbody.AddForce(Camera.transform.forward * ThrowItemForce, ForceMode.Impulse);
 
             CurrentItem = null;
@@ -135,6 +142,7 @@ namespace DeloG
             CurrentItem.transform.SetParent(null);
             CurrentItem.Rigidbody.isKinematic = false;
             CurrentItem.Collider.isTrigger = false;
+            CurrentItem.gameObject.layer = LayerMask.NameToLayer("interactable");
         }
         public void UseCurrentItem() => CurrentItem?.Use(this);
     }
