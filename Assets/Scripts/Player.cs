@@ -12,9 +12,9 @@ namespace DeloG
         [SerializeField] Transform ItemPositionTransform = null;
 
         int CarLayerMask, InteractableLayerMask;
-        Camera Camera;
-        PlayerMove PlayerMove;
-        Collider Collider;
+        public Camera Camera { get; private set; }
+        public PlayerMove PlayerMove { get; private set; }
+        public Collider Collider { get; private set; }
         public Rigidbody Rigidbody { get; private set; }
 
         Vector3 CarEnterLocalPos;
@@ -50,7 +50,7 @@ namespace DeloG
 
             if (!interacted && CurrentItem != null)
             {
-                if (!raycast && Input.GetMouseButtonDown(0)) UseCurrentItem();
+                if (Input.GetMouseButtonDown(0)) UseCurrentItem();
                 else if (Input.GetMouseButtonDown(1)) ThrowCurrentItem();
                 else if (Input.GetKeyDown(KeyCode.Q)) ReleaseCurrentItem();
             }
