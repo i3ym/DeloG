@@ -1,6 +1,7 @@
 using UnityEngine;
 using DeloG.Interactables;
 using DeloG.Items;
+using UnityEngine.UIElements.Experimental;
 
 namespace DeloG
 {
@@ -54,8 +55,13 @@ namespace DeloG
 
                 if (Input.GetMouseButtonDown(0)) interactable.DoInteraction(this);
             }
-            else if (Input.GetMouseButtonDown(0) && CurrentItem != null) ThrowCurrentItem();
-            else if (HighlightingInteractable != null)
+            else if (CurrentItem != null)
+            {
+                if (Input.GetMouseButtonDown(0)) ThrowCurrentItem();
+                else if (Input.GetMouseButtonDown(1)) ReleaseCurrentItem();
+            }
+
+            if (!raycast && HighlightingInteractable != null)
             {
                 HighlightingInteractable.StopHighlighting();
                 HighlightingInteractable = null;
@@ -86,12 +92,16 @@ namespace DeloG
 
         public void Pickup(Item item)
         {
+            if (CurrentItem != null) ReleaseCurrentItem();
+
             CurrentItem = item;
             item.transform.SetParent(ItemPositionTransform);
-            item.transform.localPosition = Vector3.zero;
-            item.transform.localRotation = Quaternion.identity;
             item.Rigidbody.isKinematic = true;
             item.Collider.isTrigger = true;
+
+            const float timeToPickup = .3f;
+            StartCoroutine(Animator.MoveToWorld(item.transform, () => ItemPositionTransform.position, timeToPickup, Easing.OutQuad));
+            StartCoroutine(Animator.RotateToLocal(item.transform, Quaternion.identity, timeToPickup, Easing.OutQuad));
         }
         public void ThrowCurrentItem()
         {
@@ -101,6 +111,12 @@ namespace DeloG
             CurrentItem.Rigidbody.AddForce(Camera.transform.forward * ThrowItemForce, ForceMode.Impulse);
 
             CurrentItem = null;
+        }
+        public void ReleaseCurrentItem()
+        {
+            CurrentItem.transform.SetParent(null);
+            CurrentItem.Rigidbody.isKinematic = false;
+            CurrentItem.Collider.isTrigger = false;
         }
     }
 }
