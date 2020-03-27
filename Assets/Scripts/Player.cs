@@ -41,9 +41,10 @@ namespace DeloG
 
             var raycast = Physics.Raycast(Camera.transform.position, Camera.transform.forward, out var hit, 10f, InteractableLayerMask);
 
-            Interactable interactable;
-            if (raycast && (interactable = hit.collider.GetComponent<Interactable>()) != null)
+            if (raycast)
             {
+                var interactable = hit.collider.GetComponent<Interactable>();
+
                 if (HighlightingInteractable != interactable)
                 {
                     if (HighlightingInteractable != null)
@@ -55,16 +56,19 @@ namespace DeloG
 
                 if (Input.GetMouseButtonDown(0)) interactable.DoInteraction(this);
             }
-            else if (CurrentItem != null)
+            else
             {
-                if (Input.GetMouseButtonDown(0)) ThrowCurrentItem();
-                else if (Input.GetMouseButtonDown(1)) ReleaseCurrentItem();
-            }
+                if (CurrentItem != null)
+                {
+                    if (Input.GetMouseButtonDown(0)) ThrowCurrentItem();
+                    else if (Input.GetMouseButtonDown(1)) ReleaseCurrentItem();
+                }
 
-            if (!raycast && HighlightingInteractable != null)
-            {
-                HighlightingInteractable.StopHighlighting();
-                HighlightingInteractable = null;
+                if (HighlightingInteractable != null)
+                {
+                    HighlightingInteractable.StopHighlighting();
+                    HighlightingInteractable = null;
+                }
             }
         }
 
