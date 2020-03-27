@@ -70,7 +70,7 @@ namespace DeloG
                 brake = isbrake ? speed * 5 : 0;
                 torque = isbrake ? 0 : Input.GetAxis("Vertical") * speed;
             }
-            if (IsHandbrakeOn) brake = MotorTorqueFast * 100;
+            if (IsHandbrakeOn) brake = MotorTorqueFast * 10_000; // сила остановки ручником
 
             foreach (var wheel in Wheels)
                 wheel.SetInputs(torque, brake, angle);
