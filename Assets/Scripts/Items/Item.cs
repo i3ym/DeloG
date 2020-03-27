@@ -17,6 +17,8 @@ namespace DeloG.Items
             Rigidbody = GetComponent<Rigidbody>();
             Collider = GetComponent<Collider>();
             Collider.isTrigger = false;
+
+            Rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
         }
 
         public sealed override void DoInteraction(Player player) => player.Pickup(this);
