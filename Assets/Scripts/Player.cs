@@ -15,7 +15,7 @@ namespace DeloG
         Camera Camera;
         PlayerMove PlayerMove;
         Collider Collider;
-        Rigidbody Rigidbody;
+        public Rigidbody Rigidbody { get; private set; }
 
         Vector3 CarEnterLocalPos;
         Interactable HighlightingInteractable;
@@ -40,36 +40,43 @@ namespace DeloG
                 Cursor.lockState = CursorLockMode.None;
 
             var raycast = Physics.Raycast(Camera.transform.position, Camera.transform.forward, out var hit, 10f, InteractableLayerMask);
+            var interacted = raycast && TryInteract(hit);
 
-            if (raycast)
+            if (!raycast && HighlightingInteractable != null)
             {
-                var interactable = hit.collider.GetComponent<Interactable>();
-
-                if (HighlightingInteractable != interactable)
-                {
-                    if (HighlightingInteractable != null)
-                        HighlightingInteractable.StopHighlighting();
-
-                    HighlightingInteractable = interactable;
-                    interactable.StartHighlighting();
-                }
-
-                if (Input.GetMouseButtonDown(0)) interactable.DoInteraction(this);
+                HighlightingInteractable.StopHighlighting();
+                HighlightingInteractable = null;
             }
-            else
-            {
-                if (CurrentItem != null)
-                {
-                    if (Input.GetMouseButtonDown(0)) ThrowCurrentItem();
-                    else if (Input.GetMouseButtonDown(1)) ReleaseCurrentItem();
-                }
 
+            if (!interacted && CurrentItem != null)
+            {
+                if (!raycast && Input.GetMouseButtonDown(0)) UseCurrentItem();
+                else if (Input.GetMouseButtonDown(1)) ThrowCurrentItem();
+                else if (Input.GetKeyDown(KeyCode.Q)) ReleaseCurrentItem();
+            }
+        }
+
+        bool TryInteract(RaycastHit hit)
+        {
+            var interactable = hit.collider.GetComponent<Interactable>();
+            if (interactable is null) return false;
+
+            if (HighlightingInteractable != interactable)
+            {
                 if (HighlightingInteractable != null)
-                {
                     HighlightingInteractable.StopHighlighting();
-                    HighlightingInteractable = null;
-                }
+
+                HighlightingInteractable = interactable;
+                interactable.StartHighlighting();
             }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                interactable.DoInteraction(this);
+                return true;
+            }
+
+            return false;
         }
 
         public void EnterCar(Car car)
@@ -109,6 +116,8 @@ namespace DeloG
         }
         public void ThrowCurrentItem()
         {
+            if (CurrentItem is null) return;
+
             CurrentItem.transform.SetParent(null);
             CurrentItem.Rigidbody.isKinematic = false;
             CurrentItem.Collider.isTrigger = false;
@@ -118,9 +127,16 @@ namespace DeloG
         }
         public void ReleaseCurrentItem()
         {
+            if (CurrentItem is null) return;
+
             CurrentItem.transform.SetParent(null);
             CurrentItem.Rigidbody.isKinematic = false;
             CurrentItem.Collider.isTrigger = false;
+        }
+        public void UseCurrentItem()
+        {
+            if (CurrentItem is null) return;
+            CurrentItem.Use(this);
         }
     }
 }

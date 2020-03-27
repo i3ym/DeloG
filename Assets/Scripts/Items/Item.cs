@@ -19,5 +19,6 @@ namespace DeloG.Items
         }
 
         public override void DoInteraction(Player player) => player.Pickup(this);
+        public virtual void Use(Player player) { }
     }
 }
