@@ -26,13 +26,7 @@ namespace DeloG.Interactables
                 light.enabled = toggled && Car.IsTurnedOn;
         }
 
-        protected override IEnumerator ToggleAnimation()
-        {
-            return System.Linq.Enumerable.Empty<object>().GetEnumerator();
-        }
-        protected override IEnumerator UntoggleAnimation()
-        {
-            return System.Linq.Enumerable.Empty<object>().GetEnumerator();
-        }
+        protected override IEnumerator ToggleAnimation() => null;
+        protected override IEnumerator UntoggleAnimation() => null;
     }
 }

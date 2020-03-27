@@ -15,7 +15,9 @@ namespace DeloG.Interactables
             IsToggled = !IsToggled;
 
             if (Animation != null) StopCoroutine(Animation);
-            Animation = StartCoroutine(IsToggled ? ToggleAnimation() : UntoggleAnimation());
+
+            var anim = IsToggled ? ToggleAnimation() : UntoggleAnimation();
+            if (anim != null) Animation = StartCoroutine(anim);
 
             OnToggle(IsToggled);
         }
