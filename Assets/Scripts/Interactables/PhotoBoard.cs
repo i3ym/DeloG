@@ -1,8 +1,8 @@
-using DeloG.Interactables;
+using DeloG.Items;
 using UnityEngine;
 using UnityEngine.UIElements.Experimental;
 
-namespace DeloG.Items
+namespace DeloG.Interactables
 {
     public class PhotoBoard : Interactable
     {
@@ -18,11 +18,11 @@ namespace DeloG.Items
             photo.Collider.isTrigger = true;
             photo.transform.SetParent(transform);
 
-            StartCoroutine(Animator.Animate(
+            StartCoroutine(Animator.AnimateConcurrent(
                 new[]
                 {
                     Animator.MoveToWorld(photo.transform, hit.point, .7f, Easing.OutCubic),
-                    Animator.RotateToWorld(photo.transform, Quaternion.Euler(hit.normal), .7f, Easing.OutCubic)
+                    Animator.RotateToLocal(photo.transform, Quaternion.Euler(-90, -90, 0), .7f, Easing.OutCubic)
                 }));
         }
     }
