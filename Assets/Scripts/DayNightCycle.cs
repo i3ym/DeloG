@@ -6,7 +6,7 @@ namespace DeloG
     {
         const float SecondsInDay = 120; // секунд в дне
 
-        [SerializeField] Light Sun;
+        [SerializeField] Light Sun = null;
         [SerializeField] bool IsPaused = false;
         [Range(0, 1)] public float Time = .5f;
 
