@@ -45,13 +45,7 @@ namespace DeloG
         void FixedUpdate() => DoMovement();
         void DoMovement()
         {
-            if (!Enabled)
-            {
-                foreach (var wheel in Wheels)
-                    wheel.SetInputs(0, 0, 0);
-
-                return;
-            }
+            if (!Enabled) return;
 
             var angle = Input.GetAxis("Horizontal") * MaxWheelAngle;
             var steerangle = angle * SteeringWheelMultiplier;
@@ -79,7 +73,7 @@ namespace DeloG
         void OnDisable()
         {
             foreach (var wheel in Wheels)
-                wheel.SetInputs(0, 0, 0);
+                wheel.SetTorque(0, 0);
         }
     }
 }

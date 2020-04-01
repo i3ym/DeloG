@@ -18,10 +18,22 @@ namespace DeloG
             Collider = GetComponent<WheelCollider>();
         }
 
-        public void SetInputs(float motorTorque, float brakeTorque, float horizontalAngle)
+        void Update()
+        {
+            var center = transform.TransformPoint(Collider.center);
+            var raycast = Physics.Raycast(center, -transform.parent.up, out var hit, Collider.suspensionDistance + Collider.radius);
+
+            if (raycast) Mesh.transform.position = hit.point + (transform.parent.up * Collider.radius);
+            else Mesh.transform.position = center - (transform.parent.up * Collider.suspensionDistance);
+        }
+
+        public void SetTorque(float motorTorque, float brakeTorque)
         {
             Collider.brakeTorque = brakeTorque;
             Collider.motorTorque = motorTorque;
+        }
+        public void SetAngle(float horizontalAngle)
+        {
             Mesh.transform.Rotate(Mesh.transform.right, Collider.rpm * 360 / 60 * Time.fixedDeltaTime, Space.World);
 
             if (Rotatable)
@@ -29,13 +41,12 @@ namespace DeloG
                 Collider.steerAngle = horizontalAngle;
                 Mesh.transform.Rotate(transform.parent.up, -(HorizontalAngle - horizontalAngle), Space.World);
                 HorizontalAngle = horizontalAngle;
-            }//, LayerMask.GetMask("Default")
-
-            var center = transform.TransformPoint(Collider.center);
-            var raycast = Physics.Raycast(center, -transform.parent.up, out var hit, Collider.suspensionDistance + Collider.radius);
-
-            if (raycast) Mesh.transform.position = hit.point + (transform.parent.up * Collider.radius);
-            else Mesh.transform.position = center - (transform.parent.up * Collider.suspensionDistance);
+            }
+        }
+        public void SetInputs(float motorTorque, float brakeTorque, float horizontalAngle)
+        {
+            SetTorque(motorTorque, brakeTorque);
+            SetAngle(horizontalAngle);
         }
     }
 }
