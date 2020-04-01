@@ -11,10 +11,11 @@ GameObject:
   - component: {fileID: 3962430934051675010}
   - component: {fileID: 3962430934051675009}
   - component: {fileID: 3962430934051675008}
-  - component: {fileID: 3962430934051675015}
   - component: {fileID: 274595249}
   - component: {fileID: 274595250}
+  - component: {fileID: 3962430934051675015}
   - component: {fileID: 274595248}
+  - component: {fileID: -4286828700544784508}
   m_Layer: 0
   m_Name: Mirror
   m_TagString: Untagged
@@ -85,24 +86,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &3962430934051675015
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3962430934051675014}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1144cdd2a59117d3bb053a6fdb556e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DisablePixelLights: 1
-  TextureSize: 256
-  ClipPlaneOffset: 0.07
-  ReflectLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!65 &274595249
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -132,6 +115,24 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &3962430934051675015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3962430934051675014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1144cdd2a59117d3bb053a6fdb556e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DisablePixelLights: 1
+  TextureSize: 256
+  ClipPlaneOffset: 0.07
+  ReflectLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &274595248
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -142,5 +143,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0d6376219c1efb780bcf2fd49398df8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-4286828700544784508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3962430934051675014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6bc36392189ab62a8ec4c5a3570e636, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
