@@ -5,14 +5,31 @@ namespace DeloG.Items
     public class CameraItem : Item
     {
         [SerializeField] GameObject PhotoPrefab = null;
+        [SerializeField] Transform PhotoPositionTransform = null;
+
+        PhotoItem CurrentPhoto;
 
         public override void Use(Player player)
         {
-            var texture = TakePhoto(player.Camera);
-            var photo = Instantiate(PhotoPrefab);
-            photo.GetComponent<PhotoItem>().Image = texture;
+            if (CurrentPhoto != null)
+            {
+                if (player.Inventory.Count >= player.Inventory.Capacity) return;
 
-            photo.transform.position = player.transform.position;
+                player.Pickup(CurrentPhoto);
+                CurrentPhoto = null;
+                return;
+            }
+
+            var texture = TakePhoto(player.Camera);
+            var photo = Instantiate(PhotoPrefab).GetComponent<PhotoItem>();
+            photo.Image = texture;
+            photo.GetComponent<Rigidbody>().isKinematic = true;
+
+            photo.transform.SetParent(PhotoPositionTransform);
+            photo.transform.localPosition = Vector3.zero;
+            photo.transform.localRotation = Quaternion.identity;
+
+            CurrentPhoto = photo;
         }
 
         public Texture2D TakePhoto(Camera camera)

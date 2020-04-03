@@ -2,7 +2,6 @@ using UnityEngine;
 using DeloG.Interactables;
 using DeloG.Items;
 using UnityEngine.UIElements.Experimental;
-using System.Collections.Generic;
 
 namespace DeloG
 {
@@ -16,17 +15,17 @@ namespace DeloG
         public PlayerMove PlayerMove { get; private set; }
         public Collider Collider { get; private set; }
         public Rigidbody Rigidbody { get; private set; }
+        public IReadOnlyInventory Inventory => _Inventory;
+        readonly Inventory _Inventory = new Inventory(2);
 
         Vector3 CarEnterLocalPos;
         Interactable HighlightingInteractable;
-
-        public IReadOnlyInventory Inventory => _Inventory;
-        readonly Inventory _Inventory = new Inventory(2);
 
         void Start()
         {
             Camera = Camera.main;
 
+            _Inventory.OnChange += DisplayItems;
             PlayerMove = gameObject.AddComponent<PlayerMove>();
             Collider = GetComponent<Collider>();
             Rigidbody = GetComponent<Rigidbody>();
@@ -115,7 +114,6 @@ namespace DeloG
             item.Rigidbody.isKinematic = true;
             item.Collider.isTrigger = true;
             item.gameObject.layer = LayerMask.NameToLayer("Default");
-            DisplayItems();
 
             return true;
         }
@@ -141,7 +139,6 @@ namespace DeloG
             item.gameObject.layer = LayerMask.NameToLayer("interactable");
 
             _Inventory.Remove(item);
-            DisplayItems();
         }
 
         void DisplayItems()
@@ -163,6 +160,8 @@ namespace DeloG
                     },
                     () =>
                     {
+                        if (!_Inventory.Contains(item)) return;
+
                         item.transform.SetParent(ItemPositionTransform);
                         item.transform.localPosition = pos;
                         item.transform.localRotation = item.PlayerRotation;
