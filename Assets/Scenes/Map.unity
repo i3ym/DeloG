@@ -275,7 +275,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 447876399}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: acc54836201127a43a8fbe8b712c1e26, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
@@ -476,7 +476,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1199760281}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: acc54836201127a43a8fbe8b712c1e26, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
@@ -495,7 +495,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1316614759}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: acc54836201127a43a8fbe8b712c1e26, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
@@ -574,6 +574,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1225945685592842439, guid: 7ddde85dceb6735a1a9170464bcdc0ac, type: 3}
+      propertyPath: m_ForwardFriction.m_Stiffness
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225945685592842439, guid: 7ddde85dceb6735a1a9170464bcdc0ac, type: 3}
+      propertyPath: m_SidewaysFriction.m_Stiffness
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225945686012096396, guid: 7ddde85dceb6735a1a9170464bcdc0ac, type: 3}
+      propertyPath: m_ForwardFriction.m_Stiffness
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225945686012096396, guid: 7ddde85dceb6735a1a9170464bcdc0ac, type: 3}
+      propertyPath: m_SidewaysFriction.m_Stiffness
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1225945686030966340, guid: 7ddde85dceb6735a1a9170464bcdc0ac, type: 3}
       propertyPath: m_Name
       value: Car
@@ -621,6 +637,22 @@ PrefabInstance:
     - target: {fileID: 1225945686030966343, guid: 7ddde85dceb6735a1a9170464bcdc0ac, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225945686747284797, guid: 7ddde85dceb6735a1a9170464bcdc0ac, type: 3}
+      propertyPath: m_ForwardFriction.m_Stiffness
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225945686747284797, guid: 7ddde85dceb6735a1a9170464bcdc0ac, type: 3}
+      propertyPath: m_SidewaysFriction.m_Stiffness
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225945687211933654, guid: 7ddde85dceb6735a1a9170464bcdc0ac, type: 3}
+      propertyPath: m_ForwardFriction.m_Stiffness
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225945687211933654, guid: 7ddde85dceb6735a1a9170464bcdc0ac, type: 3}
+      propertyPath: m_SidewaysFriction.m_Stiffness
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7ddde85dceb6735a1a9170464bcdc0ac, type: 3}
