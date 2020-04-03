@@ -38,6 +38,13 @@ namespace DeloG
             if (Input.GetKeyDown(KeyCode.Escape))
                 Cursor.lockState = CursorLockMode.None;
 
+            var scroll = Input.GetAxisRaw("Mouse ScrollWheel");
+            if (scroll != 0 && _Inventory.CurrentItem != null)
+            {
+                _Inventory.Shift(scroll > 0 ? 1 : -1);
+                DisplayItems();
+            }
+
             var raycast = Raycast.RaycastInteractable(Camera.transform, out var hit);
             var iscar = raycast && hit.collider.gameObject.layer == LayerMask.NameToLayer("car");
             var interacted = raycast && !iscar && TryInteract(hit);
