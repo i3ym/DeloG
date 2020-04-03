@@ -2,6 +2,7 @@ using UnityEngine;
 using DeloG.Interactables;
 using DeloG.Items;
 using UnityEngine.UIElements.Experimental;
+using System.Collections.Generic;
 
 namespace DeloG
 {
@@ -19,7 +20,8 @@ namespace DeloG
         Vector3 CarEnterLocalPos;
         Interactable HighlightingInteractable;
 
-        public Item CurrentItem { get; private set; }
+        public IReadOnlyInventory Inventory => _Inventory;
+        readonly Inventory _Inventory = new Inventory(2);
 
         void Start()
         {
@@ -46,7 +48,7 @@ namespace DeloG
                 HighlightingInteractable = null;
             }
 
-            if (!interacted && CurrentItem != null)
+            if (!interacted && _Inventory.CurrentItem != null)
             {
                 if (Input.GetMouseButtonDown(0)) UseCurrentItem();
                 else if (Input.GetMouseButtonDown(1)) ThrowCurrentItem();
@@ -59,7 +61,7 @@ namespace DeloG
             var interactable = hit.collider.GetComponent<Interactable>();
             if (interactable is null) return false;
 
-            if (HighlightingInteractable != interactable && interactable != CurrentItem)
+            if (HighlightingInteractable != interactable && interactable != _Inventory.CurrentItem)
             {
                 if (HighlightingInteractable != null)
                     HighlightingInteractable.StopHighlighting();
@@ -99,51 +101,68 @@ namespace DeloG
             Rigidbody.isKinematic = false;
         }
 
-        public void Pickup(Item item)
+        public bool Pickup(Item item)
         {
-            if (CurrentItem != null) DropCurrentItem();
+            if (!_Inventory.TryAdd(item)) return false;
 
-            CurrentItem = item;
             item.Rigidbody.isKinematic = true;
             item.Collider.isTrigger = true;
-            CurrentItem.gameObject.layer = LayerMask.NameToLayer("Default");
+            item.gameObject.layer = LayerMask.NameToLayer("Default");
+            DisplayItems();
 
-            const float timeToPickup = .3f;
-
-            StartCoroutine(Animator.AnimateConcurrent(
-                new[]
-                {
-                    Animator.MoveToWorld(item.transform, () => ItemPositionTransform.position, timeToPickup, Easing.OutQuad),
-                    Animator.RotateToLocal(item.transform, () => ItemPositionTransform.rotation * item.PlayerRotation, timeToPickup, Easing.OutQuad)
-                },
-                () =>
-                {
-                    item.transform.SetParent(ItemPositionTransform);
-                    item.transform.localPosition = Vector3.zero;
-                    item.transform.localRotation = item.PlayerRotation;
-                }));
+            return true;
         }
         public void ThrowCurrentItem()
         {
-            if (CurrentItem is null) return;
+            if (_Inventory.CurrentItem is null) return;
 
-            CurrentItem.transform.SetParent(null);
-            CurrentItem.Rigidbody.isKinematic = false;
-            CurrentItem.Collider.isTrigger = false;
-            CurrentItem.gameObject.layer = LayerMask.NameToLayer("interactable");
-            CurrentItem.Rigidbody.AddForce(Camera.transform.forward * ThrowItemForce, ForceMode.Impulse);
-
-            CurrentItem = null;
+            var item = _Inventory.CurrentItem;
+            RemoveItem(item);
+            item.Rigidbody.AddForce(Camera.transform.forward * ThrowItemForce, ForceMode.Impulse);
         }
         public void DropCurrentItem()
         {
-            if (CurrentItem is null) return;
+            if (_Inventory.CurrentItem is null) return;
 
-            CurrentItem.transform.SetParent(null);
-            CurrentItem.Rigidbody.isKinematic = false;
-            CurrentItem.Collider.isTrigger = false;
-            CurrentItem.gameObject.layer = LayerMask.NameToLayer("interactable");
+            RemoveItem(_Inventory.CurrentItem);
         }
-        public void UseCurrentItem() => CurrentItem?.Use(this);
+        void RemoveItem(Item item)
+        {
+            item.transform.SetParent(null);
+            item.Rigidbody.isKinematic = false;
+            item.Collider.isTrigger = false;
+            item.gameObject.layer = LayerMask.NameToLayer("interactable");
+
+            _Inventory.Remove(item);
+            DisplayItems();
+        }
+
+        void DisplayItems()
+        {
+            const float timeToPickup = .3f;
+
+            int index = 0;
+            foreach (var item in _Inventory)
+            {
+                if (item is null) continue;
+
+                var pos = new Vector3(index-- / 2f, 0, 0);
+
+                StartCoroutine(Animator.AnimateConcurrent(
+                    new[]
+                    {
+                        Animator.MoveToWorld(item.transform, () => ItemPositionTransform.TransformPoint(pos), timeToPickup, Easing.OutQuad),
+                        Animator.RotateToWorld(item.transform, () => ItemPositionTransform.rotation * item.PlayerRotation, timeToPickup, Easing.OutQuad)
+                    },
+                    () =>
+                    {
+                        item.transform.SetParent(ItemPositionTransform);
+                        item.transform.localPosition = pos;
+                        item.transform.localRotation = item.PlayerRotation;
+                    }));
+            }
+        }
+
+        public void UseCurrentItem() => _Inventory.CurrentItem?.Use(this);
     }
 }

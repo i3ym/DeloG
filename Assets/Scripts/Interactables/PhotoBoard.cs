@@ -8,7 +8,7 @@ namespace DeloG.Interactables
     {
         public override void DoInteraction(Player player)
         {
-            if (!(player.CurrentItem is PhotoItem photo)) return;
+            if (!(player.Inventory.CurrentItem is PhotoItem photo)) return;
 
             var raycast = Raycast.RaycastInteractable(player.Camera.transform, out var hit);
             if (!raycast) return;

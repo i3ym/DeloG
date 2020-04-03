@@ -10,6 +10,7 @@ namespace DeloG
         const float SteeringWheelMultiplier = 6; // умножение кручение руля
 
         public event Action<bool> OnChangeState = delegate { };
+        public event Action<bool> OnPlayerJoinExit = delegate { };
 
         [SerializeField] float MotorTorque = 500; // скорость
         float MotorTorqueFast => MotorTorque * 1.5f; // скорость на шифт
