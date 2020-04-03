@@ -8,11 +8,10 @@ namespace DeloG.Items
     {
         public Rigidbody Rigidbody { get; private set; }
         public Collider Collider { get; private set; }
-        public virtual Quaternion PlayerRotation { get; } = Quaternion.identity;
 
-        protected override void Start()
+        protected override void Awake()
         {
-            base.Start();
+            base.Awake();
 
             Rigidbody = GetComponent<Rigidbody>();
             Collider = GetComponent<Collider>();
@@ -21,7 +20,7 @@ namespace DeloG.Items
             Rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
         }
 
-        public sealed override void DoInteraction(Player player) => player.Pickup(this);
+        public sealed override void DoInteraction(Player player) => player.Inventory.Pickup(this);
         public virtual void Use(Player player) { }
     }
 }

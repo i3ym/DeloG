@@ -12,9 +12,9 @@ namespace DeloG.Interactables
         protected abstract float AnimTime { get; }
         Quaternion StartRotation;
 
-        protected override void Start()
+        protected override void Awake()
         {
-            base.Start();
+            base.Awake();
             StartRotation = transform.localRotation;
         }
 

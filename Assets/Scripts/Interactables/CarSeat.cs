@@ -7,9 +7,9 @@ namespace DeloG.Interactables
         [SerializeField] Car Car = null;
         [SerializeField] CarSeatOut ExitCarObject = null;
 
-        protected override void Start()
+        protected override void Awake()
         {
-            base.Start();
+            base.Awake();
 
             ExitCarObject.OnInteraction += (player) =>
             {

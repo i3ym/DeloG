@@ -70,19 +70,32 @@ namespace DeloG
             yield return end();
         }
 
+        public static IEnumerator MoveTo(Transform transform, Vector3 end, float time, Func<float, float> easing, bool local) =>
+            local ? MoveToLocal(transform, end, time, easing) : MoveToWorld(transform, end, time, easing);
+        public static IEnumerator MoveTo(Transform transform, Func<Vector3> end, float time, Func<float, float> easing, bool local) =>
+            local ? MoveToLocal(transform, end, time, easing) : MoveToWorld(transform, end, time, easing);
+
         public static IEnumerator MoveToLocal(Transform transform, Vector3 end, float time, Func<float, float> easing) =>
             Animate(transform.localPosition, end, time, Vector3.Lerp, easing, (rot) => transform.localPosition = rot);
         public static IEnumerator MoveToLocal(Transform transform, Func<Vector3> end, float time, Func<float, float> easing) =>
             Animate(transform.localPosition, end, time, Vector3.Lerp, easing, (rot) => transform.localPosition = rot);
+
         public static IEnumerator MoveToWorld(Transform transform, Vector3 end, float time, Func<float, float> easing) =>
             Animate(transform.position, end, time, Vector3.Lerp, easing, (rot) => transform.position = rot);
         public static IEnumerator MoveToWorld(Transform transform, Func<Vector3> end, float time, Func<float, float> easing) =>
             Animate(transform.position, end, time, Vector3.Lerp, easing, (rot) => transform.position = rot);
 
+
+        public static IEnumerator RotateTo(Transform transform, Quaternion end, float time, Func<float, float> easing, bool local) =>
+            local ? RotateToLocal(transform, end, time, easing) : RotateToWorld(transform, end, time, easing);
+        public static IEnumerator RotateTo(Transform transform, Func<Quaternion> end, float time, Func<float, float> easing, bool local) =>
+            local ? RotateToLocal(transform, end, time, easing) : RotateToWorld(transform, end, time, easing);
+
         public static IEnumerator RotateToLocal(Transform transform, Quaternion end, float time, Func<float, float> easing) =>
             Animate(transform.localRotation, end, time, Quaternion.Lerp, easing, (rot) => transform.localRotation = rot);
         public static IEnumerator RotateToLocal(Transform transform, Func<Quaternion> end, float time, Func<float, float> easing) =>
             Animate(transform.localRotation, end, time, Quaternion.Lerp, easing, (rot) => transform.localRotation = rot);
+
         public static IEnumerator RotateToWorld(Transform transform, Quaternion end, float time, Func<float, float> easing) =>
             Animate(transform.rotation, end, time, Quaternion.Lerp, easing, (rot) => transform.rotation = rot);
         public static IEnumerator RotateToWorld(Transform transform, Func<Quaternion> end, float time, Func<float, float> easing) =>

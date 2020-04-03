@@ -9,7 +9,7 @@ namespace DeloG.Interactables
         protected Renderer Renderer { get; private set; }
         bool DoStopCoroutine = false;
 
-        protected virtual void Start()
+        protected virtual void Awake()
         {
             Renderer = GetComponent<Renderer>();
 

@@ -5,18 +5,17 @@ using UnityEngine.UIElements.Experimental;
 
 namespace DeloG
 {
+    [RequireComponent(typeof(PlayerMove), typeof(Collider))]
+    [RequireComponent(typeof(Rigidbody), typeof(ItemHolder))]
     public class Player : MonoBehaviour
     {
         const float ThrowItemForce = 20; // сила бросания предмета
-
-        [SerializeField] Transform ItemPositionTransform = null;
 
         public Camera Camera { get; private set; }
         public PlayerMove PlayerMove { get; private set; }
         public Collider Collider { get; private set; }
         public Rigidbody Rigidbody { get; private set; }
-        public IReadOnlyInventory Inventory => _Inventory;
-        readonly Inventory _Inventory = new Inventory(2);
+        public ItemHolder Inventory { get; private set; }
 
         Vector3 CarEnterLocalPos;
         Interactable HighlightingInteractable;
@@ -25,10 +24,10 @@ namespace DeloG
         {
             Camera = Camera.main;
 
-            _Inventory.OnChange += DisplayItems;
             PlayerMove = gameObject.AddComponent<PlayerMove>();
             Collider = GetComponent<Collider>();
             Rigidbody = GetComponent<Rigidbody>();
+            Inventory = GetComponent<ItemHolder>();
 
             Cursor.lockState = CursorLockMode.Locked;
         }
@@ -38,11 +37,8 @@ namespace DeloG
                 Cursor.lockState = CursorLockMode.None;
 
             var scroll = Input.GetAxisRaw("Mouse ScrollWheel");
-            if (scroll != 0 && _Inventory.CurrentItem != null)
-            {
-                _Inventory.Shift(scroll > 0 ? 1 : -1);
-                DisplayItems();
-            }
+            if (scroll != 0 && Inventory.CurrentItem != null)
+                Inventory.Shift(scroll > 0 ? 1 : -1);
 
             var raycast = Raycast.RaycastInteractable(Camera.transform, out var hit);
             var iscar = raycast && hit.collider.gameObject.layer == LayerMask.NameToLayer("car");
@@ -54,7 +50,7 @@ namespace DeloG
                 HighlightingInteractable = null;
             }
 
-            if (!interacted && _Inventory.CurrentItem != null)
+            if (!interacted && Inventory.CurrentItem != null)
             {
                 if (Input.GetMouseButtonDown(0)) UseCurrentItem();
                 else if (Input.GetMouseButtonDown(1)) ThrowCurrentItem();
@@ -67,7 +63,7 @@ namespace DeloG
             var interactable = hit.collider.GetComponent<Interactable>();
             if (interactable is null) return false;
 
-            if (HighlightingInteractable != interactable && interactable != _Inventory.CurrentItem)
+            if (HighlightingInteractable != interactable && interactable != Inventory.CurrentItem)
             {
                 if (HighlightingInteractable != null)
                     HighlightingInteractable.StopHighlighting();
@@ -84,6 +80,21 @@ namespace DeloG
 
             return false;
         }
+
+        public void ThrowCurrentItem()
+        {
+            if (Inventory.CurrentItem is null) return;
+
+            var item = Inventory.CurrentItem;
+            Inventory.RemoveItem(item);
+            item.Rigidbody.AddForce(Camera.transform.forward * ThrowItemForce, ForceMode.Impulse);
+        }
+        public void DropCurrentItem()
+        {
+            if (Inventory.CurrentItem is null) return;
+            Inventory.RemoveItem(Inventory.CurrentItem);
+        }
+        public void UseCurrentItem() => Inventory.CurrentItem?.Use(this);
 
         public void EnterCar(Car car)
         {
@@ -106,69 +117,5 @@ namespace DeloG
             transform.localRotation = default;
             Rigidbody.isKinematic = false;
         }
-
-        public bool Pickup(Item item)
-        {
-            if (!_Inventory.TryAdd(item)) return false;
-
-            item.Rigidbody.isKinematic = true;
-            item.Collider.isTrigger = true;
-            item.gameObject.layer = LayerMask.NameToLayer("Default");
-
-            return true;
-        }
-        public void ThrowCurrentItem()
-        {
-            if (_Inventory.CurrentItem is null) return;
-
-            var item = _Inventory.CurrentItem;
-            RemoveItem(item);
-            item.Rigidbody.AddForce(Camera.transform.forward * ThrowItemForce, ForceMode.Impulse);
-        }
-        public void DropCurrentItem()
-        {
-            if (_Inventory.CurrentItem is null) return;
-
-            RemoveItem(_Inventory.CurrentItem);
-        }
-        void RemoveItem(Item item)
-        {
-            item.transform.SetParent(null);
-            item.Rigidbody.isKinematic = false;
-            item.Collider.isTrigger = false;
-            item.gameObject.layer = LayerMask.NameToLayer("interactable");
-
-            _Inventory.Remove(item);
-        }
-
-        void DisplayItems()
-        {
-            const float timeToPickup = .3f;
-
-            int index = 0;
-            foreach (var item in _Inventory)
-            {
-                if (item is null) continue;
-
-                var pos = new Vector3(index-- / 2f, 0, 0);
-
-                StartCoroutine(Animator.AnimateConcurrent(
-                    new[]
-                    {
-                        Animator.MoveToWorld(item.transform, () => ItemPositionTransform.TransformPoint(pos), timeToPickup, Easing.OutQuad),
-                        Animator.RotateToWorld(item.transform, () => ItemPositionTransform.rotation * item.PlayerRotation, timeToPickup, Easing.OutQuad)
-                    },
-                    () =>
-                    {
-                        if (!_Inventory.Contains(item)) return;
-
-                        item.transform.SetParent(ItemPositionTransform);
-                        item.transform.localPosition = pos;
-                        item.transform.localRotation = item.PlayerRotation;
-                    }));
-            }
-        }
-
-        public void UseCurrentItem() => _Inventory.CurrentItem?.Use(this);
     }
 }

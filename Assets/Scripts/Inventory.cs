@@ -40,19 +40,19 @@ namespace DeloG
             OnChange();
             return remove;
         }
-        public void Shift(int count)
+        public void Shift(int amount)
         {
-            if (count == 0) return;
+            if (amount == 0) return;
 
-            if (count > 0)
-                for (int i = 0; i < Math.Abs(count); i++)
+            if (amount > 0)
+                for (int i = 0; i < Math.Abs(amount); i++)
                 {
                     var last = Items.Last;
                     Items.RemoveLast();
                     Items.AddFirst(last);
                 }
             else
-                for (int i = 0; i < Math.Abs(count); i++)
+                for (int i = 0; i < Math.Abs(amount); i++)
                 {
                     var first = Items.First;
                     Items.RemoveFirst();
