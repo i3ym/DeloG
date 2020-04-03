@@ -1795,7 +1795,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PhotoPrefab: {fileID: 6235158846856432987, guid: 2d6a60a9364459b46b61c0758fc97d5c, type: 3}
-  PhotoPositionTransform: {fileID: 0}
+  PhotoPositionTransform: {fileID: 8449890537633427908}
 --- !u!64 &1225945685783274556
 MeshCollider:
   m_ObjectHideFlags: 0
