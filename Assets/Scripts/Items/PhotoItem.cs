@@ -6,22 +6,10 @@ namespace DeloG.Items
     {
         public Texture Image
         {
-            get => ImageRenderer.material.mainTexture;
-            set
-            {
-                ImageRenderer.material.mainTexture = value;
-
-                float min = Mathf.Min(value.width, value.height);
-                transform.localScale = new Vector3(value.width / min, 1, value.height / min);
-            }
+            get => PhotoMaterial.mainTexture;
+            set => PhotoMaterial.mainTexture = value;
         }
 
-        Renderer ImageRenderer;
-
-        protected override void Awake()
-        {
-            base.Awake();
-            ImageRenderer = GetComponent<Renderer>();
-        }
+        [SerializeField] Material PhotoMaterial = null;
     }
 }

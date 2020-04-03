@@ -15,7 +15,6 @@ namespace DeloG.Items
 
             Rigidbody = GetComponent<Rigidbody>();
             Collider = GetComponent<Collider>();
-            Collider.isTrigger = false;
 
             Rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
         }

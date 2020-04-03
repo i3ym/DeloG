@@ -1,42 +1,36 @@
 using UnityEngine;
+using UnityEngine.UIElements.Experimental;
 
 namespace DeloG.Items
 {
-    [RequireComponent(typeof(ItemHolder))]
     public class CameraItem : Item
     {
         [SerializeField] GameObject PhotoPrefab = null;
 
-        ItemHolder Inventory;
-
-        protected override void Awake()
-        {
-            base.Awake();
-            Inventory = GetComponent<ItemHolder>();
-        }
+        PhotoItem CurrentItem;
 
         public override void Use(Player player)
         {
-            if (Inventory.CurrentItem != null)
+            if (CurrentItem != null)
             {
                 if (player.Inventory.Count >= player.Inventory.Capacity) return;
 
-                var item = Inventory.CurrentItem;
-                Inventory.RemoveItem(item);
-                player.Inventory.Pickup(item);
+                player.Inventory.Pickup(CurrentItem);
+                CurrentItem = null;
                 return;
             }
 
             var texture = TakePhoto(player.Camera);
             var photo = Instantiate(PhotoPrefab).GetComponent<PhotoItem>();
-            photo.transform.localScale /= 2f;
             photo.Image = texture;
 
-            photo.transform.SetParent(transform);
-            photo.transform.localPosition = Vector3.zero;
-            photo.transform.localRotation = Inventory.LocalTargerRotation;
+            photo.transform.SetParent(transform, false);
+            photo.transform.position = PhotoPrefab.transform.position;
+            photo.transform.rotation = PhotoPrefab.transform.rotation;
 
-            Inventory.Pickup(photo);
+            StartCoroutine(Animator.MoveToLocal(photo.transform, Vector3.forward * -.3f, 1f, Easing.Linear));
+
+            CurrentItem = photo;
         }
 
         public Texture2D TakePhoto(Camera camera)

@@ -14,7 +14,7 @@ namespace DeloG.Interactables
             Renderer = GetComponent<Renderer>();
 
             gameObject.layer = LayerMask.NameToLayer("interactable");
-            gameObject.GetComponent<Collider>().isTrigger = true;
+            // gameObject.GetComponent<Collider>().isTrigger = true;
         }
 
         public abstract void DoInteraction(Player player);
