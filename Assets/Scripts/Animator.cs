@@ -7,11 +7,19 @@ namespace DeloG
 {
     public static class Animator
     {
-        public static IEnumerator Animate(IEnumerable<IEnumerator> animations, Action after = null)
+        public static IEnumerator Animate(params Func<IEnumerator>[] animations)
         {
-            foreach (var animation in animations)
+            foreach (var anim in animations)
+            {
+                var animation = anim();
                 while (animation.MoveNext())
                     yield return null;
+            }
+        }
+        public static IEnumerator Animate(IEnumerator animation, Action after = null)
+        {
+            while (animation.MoveNext())
+                yield return null;
 
             after?.Invoke();
         }

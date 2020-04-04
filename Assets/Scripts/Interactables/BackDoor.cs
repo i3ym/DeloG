@@ -6,26 +6,18 @@ namespace DeloG.Interactables
 {
     public class BackDoor : Door
     {
-        public override IEnumerator OpenAnimation()
-        {
-            var anim = Animator.MoveToLocal(transform, transform.localPosition + new Vector3(.2f, 0, 0), .7f, Easing.Linear);
-            while (anim.MoveNext())
-                yield return anim.Current;
+        Vector3 StartLocalPosition;
 
-            anim = Animator.MoveToLocal(transform, transform.localPosition + new Vector3(0f, 0, -1.7f), 1f, Easing.OutCubic);
-            while (anim.MoveNext())
-                yield return anim.Current;
-        }
-        public override IEnumerator CloseAnimation()
-        {
-            var anim = Animator.MoveToLocal(transform, transform.localPosition - new Vector3(0f, 0, -1.7f), 1f, Easing.OutCubic);
-            while (anim.MoveNext())
-                yield return anim.Current;
+        void Awake() => StartLocalPosition = transform.localPosition;
 
-            anim = Animator.MoveToLocal(transform, transform.localPosition - new Vector3(.2f, 0, 0), .7f, Easing.Linear);
-            while (anim.MoveNext())
-                yield return anim.Current;
+        public override IEnumerator OpenAnimation() =>
+            Animator.Animate(
+                () => Animator.MoveToLocal(transform, StartLocalPosition + new Vector3(.2f, 0, 0), .7f, Easing.Linear),
+                () => Animator.MoveToLocal(transform, StartLocalPosition + new Vector3(.2f, 0, -1.7f), 1f, Easing.OutCubic));
 
-        }
+        public override IEnumerator CloseAnimation() =>
+            Animator.Animate(
+                () => Animator.MoveToLocal(transform, StartLocalPosition + new Vector3(.2f, 0, 0f), 1f, Easing.OutCubic),
+                () => Animator.MoveToLocal(transform, StartLocalPosition, .7f, Easing.Linear));
     }
 }
