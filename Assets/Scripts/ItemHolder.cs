@@ -19,7 +19,6 @@ namespace DeloG
         [SerializeField] int InventoryCapacity = 2;
 
         Inventory Inventory;
-        protected virtual bool LocalAnimations { get; } = false;
 
         void Awake()
         {
@@ -50,8 +49,6 @@ namespace DeloG
         }
         public void Shift(int amount) => Inventory.Shift(amount);
 
-        protected virtual Quaternion GetRotation(Item item) => Quaternion.identity;
-
         void DisplayItems()
         {
             const float timeToPickup = .3f;
@@ -62,21 +59,12 @@ namespace DeloG
                 if (item is null) continue;
 
                 var pos = new Vector3(index-- / 2f, 0, 0);
-                var rotation = GetRotation(item);
-
-                if (LocalAnimations)
-                    item.transform.SetParent(ItemPositionTransform);
 
                 StartCoroutine(Animator.AnimateConcurrent(
                     new[]
                     {
-                        LocalAnimations
-                        ? Animator.MoveToLocal(item.transform, pos, timeToPickup, Easing.OutQuad)
-                        : Animator.MoveToWorld(item.transform, () => ItemPositionTransform.TransformPoint(pos), timeToPickup, Easing.OutQuad),
-
-                        LocalAnimations
-                        ? Animator.RotateToLocal(item.transform, rotation, timeToPickup, Easing.OutQuad)
-                        : Animator.RotateToWorld(item.transform, () => ItemPositionTransform.rotation * rotation, timeToPickup, Easing.OutQuad),
+                        Animator.MoveToWorld(item.transform, () => ItemPositionTransform.TransformPoint(pos), timeToPickup, Easing.OutQuad),
+                        Animator.RotateToWorld(item.transform, () => ItemPositionTransform.rotation * item.PlayerRotation, timeToPickup, Easing.OutQuad),
                     },
                     () =>
                     {
@@ -84,7 +72,7 @@ namespace DeloG
 
                         item.transform.SetParent(ItemPositionTransform);
                         item.transform.localPosition = pos;
-                        item.transform.localRotation = rotation;
+                        item.transform.localRotation = item.PlayerRotation;
                     }));
             }
         }

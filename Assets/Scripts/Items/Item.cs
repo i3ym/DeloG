@@ -9,6 +9,8 @@ namespace DeloG.Items
         public Rigidbody Rigidbody { get; private set; }
         public Collider Collider { get; private set; }
 
+        public virtual Quaternion PlayerRotation { get; } = Quaternion.identity;
+
         protected override void Awake()
         {
             base.Awake();

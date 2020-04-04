@@ -8,11 +8,13 @@ namespace DeloG.Items
         [SerializeField] GameObject PhotoPrefab = null;
 
         PhotoItem CurrentItem;
+        bool PhotoAnimatonRunning = false;
 
         public override void Use(Player player)
         {
             if (CurrentItem != null)
             {
+                if (PhotoAnimatonRunning) return;
                 if (player.Inventory.Count >= player.Inventory.Capacity) return;
 
                 player.Inventory.Pickup(CurrentItem);
@@ -28,7 +30,11 @@ namespace DeloG.Items
             photo.transform.position = PhotoPrefab.transform.position;
             photo.transform.rotation = PhotoPrefab.transform.rotation;
 
-            StartCoroutine(Animator.MoveToLocal(photo.transform, Vector3.forward * -.3f, 1f, Easing.Linear));
+            PhotoAnimatonRunning = true;
+
+            StartCoroutine(Animator.Animate(
+                Animator.MoveToLocal(photo.transform, Vector3.forward * -.3f, 1f, Easing.Linear),
+                () => PhotoAnimatonRunning = false));
 
             CurrentItem = photo;
         }

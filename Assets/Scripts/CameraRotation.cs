@@ -6,10 +6,7 @@ namespace DeloG
     {
         Transform Camera;
 
-        void Start()
-        {
-            Camera = UnityEngine.Camera.main.transform;
-        }
+        void Start() => Camera = UnityEngine.Camera.main.transform;
 
         void Update()
         {
