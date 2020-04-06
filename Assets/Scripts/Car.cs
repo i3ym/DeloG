@@ -13,6 +13,7 @@ namespace DeloG
         public event Action<bool> OnPlayerJoinExit = delegate { };
 
         [SerializeField] float MotorTorque = 500; // скорость
+        [SerializeField] [Range(0, .1f)] float LerpAmount = .04f; // скорость вращения колёс
         float MotorTorqueFast => MotorTorque * 1.5f; // скорость на шифт
 
         [SerializeField] public Transform PlayerPosition = null;
@@ -29,6 +30,7 @@ namespace DeloG
         public bool Enabled = false;
         [HideInInspector] bool _IsTurnedOn = false;
 
+        float Horizontal = 0f;
         float SteeringWheelAngle = 0f;
         Vector3 StartSteeringWheelRotation;
 
@@ -43,12 +45,16 @@ namespace DeloG
             StartSteeringWheelRotation = SteeringWheel.localEulerAngles;
         }
 
-        void FixedUpdate() => DoMovement();
+        void Update()
+        {
+            Horizontal = Mathf.Lerp(Horizontal, Input.GetAxisRaw("Horizontal"), .04f);
+            DoMovement();
+        }
         void DoMovement()
         {
             if (!Enabled) return;
 
-            var angle = Input.GetAxis("Horizontal") * MaxWheelAngle;
+            var angle = Horizontal * MaxWheelAngle;
             var steerangle = angle * SteeringWheelMultiplier;
             SteeringWheel.Rotate(SteeringWheel.up, -(SteeringWheelAngle - steerangle), Space.World);
             SteeringWheelAngle = steerangle;
