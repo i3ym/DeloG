@@ -55,6 +55,21 @@ namespace DeloG
             }
         }
 
+
+        public static IEnumerator Action(Action action)
+        {
+            action();
+            yield return null;
+        }
+        public static IEnumerator Wait(float seconds)
+        {
+            var time = Time.time + seconds;
+
+            while (time > Time.time)
+                yield return null;
+        }
+
+
         public static IEnumerator<TVal> Animate<TVal>(TVal start, TVal end, float time,
             Func<TVal, TVal, float, TVal> lerpFunc, Func<float, float> easingFunc)
         {

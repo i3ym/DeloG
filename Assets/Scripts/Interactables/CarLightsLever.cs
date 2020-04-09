@@ -10,7 +10,7 @@ namespace DeloG.Interactables
         protected override void Awake()
         {
             base.Awake();
-            OnToggle(false);
+            ToggleLights(false);
 
             Car.OnChangeState += (on) =>
             {
@@ -20,10 +20,11 @@ namespace DeloG.Interactables
             };
         }
 
-        protected override void OnToggle(bool toggled)
+        protected override void OnToggle(bool toggled) { }
+        protected void ToggleLights(bool enabled)
         {
             foreach (var light in Lights)
-                light.enabled = toggled && Car.IsTurnedOn;
+                light.enabled = enabled && Car.IsTurnedOn;
         }
 
         protected override IEnumerator ToggleAnimation() => null;

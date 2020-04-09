@@ -47,7 +47,10 @@ namespace DeloG
 
         void Update()
         {
-            Horizontal = Mathf.Lerp(Horizontal, Input.GetAxisRaw("Horizontal"), .04f);
+            var hor = Input.GetAxisRaw("Horizontal");
+            if (hor == 0) Horizontal = Input.GetAxis("Horizontal");
+            else Horizontal = Mathf.Lerp(Horizontal, hor, .04f);
+
             DoMovement();
         }
         void DoMovement()
