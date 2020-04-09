@@ -12,16 +12,11 @@ namespace DeloG.Interactables
             base.Awake();
             ToggleLights(false);
 
-            Car.OnChangeState += (on) =>
-            {
-                if (IsToggled)
-                    foreach (var light in Lights)
-                        light.enabled = on;
-            };
+            Car.OnChangeState += (on) => ToggleLights(IsToggled);
         }
 
         protected override void OnToggle(bool toggled) { }
-        protected void ToggleLights(bool enabled)
+        protected virtual void ToggleLights(bool enabled)
         {
             foreach (var light in Lights)
                 light.enabled = enabled && Car.IsTurnedOn;
