@@ -33,8 +33,8 @@ namespace DeloG.Items
             PhotoAnimatonRunning = true;
 
             StartCoroutine(Animator.Animate(
-                Animator.MoveToLocal(photo.transform, Vector3.forward * -.3f, 1f, Easing.Linear),
-                () => PhotoAnimatonRunning = false));
+                () => Animator.MoveToLocal(photo.transform, Vector3.forward * -.3f, 1f, Easing.Linear),
+                () => Animator.Action(() => PhotoAnimatonRunning = false)));
 
             CurrentItem = photo;
         }

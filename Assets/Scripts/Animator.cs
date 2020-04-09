@@ -16,13 +16,6 @@ namespace DeloG
                     yield return null;
             }
         }
-        public static IEnumerator Animate(IEnumerator animation, Action after = null)
-        {
-            while (animation.MoveNext())
-                yield return null;
-
-            after?.Invoke();
-        }
         public static IEnumerator AnimateConcurrent(IEnumerable<IEnumerator> animations, Action after = null)
         {
             bool exit = false;
