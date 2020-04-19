@@ -7,6 +7,13 @@ namespace DeloG
 {
     public static class Animator
     {
+        public static IEnumerator Animate(IEnumerator animation, Action after)
+        {
+            while (animation.MoveNext())
+                yield return animation.Current;
+
+            after();
+        }
         public static IEnumerator Animate(params Func<IEnumerator>[] animations)
         {
             foreach (var anim in animations)
@@ -16,6 +23,8 @@ namespace DeloG
                     yield return null;
             }
         }
+        public static IEnumerator AnimateConcurrent(params IEnumerator[] animations) => AnimateConcurrent(animations, null);
+        public static IEnumerator AnimateConcurrent(Action after, params IEnumerator[] animations) => AnimateConcurrent(animations, after);
         public static IEnumerator AnimateConcurrent(IEnumerable<IEnumerator> animations, Action after = null)
         {
             bool exit = false;
@@ -24,7 +33,7 @@ namespace DeloG
             {
                 exit = true;
                 foreach (var animation in animations)
-                    exit = exit & !animation.MoveNext();
+                    exit &= !animation.MoveNext();
 
                 if (exit) break;
                 yield return null;
@@ -52,7 +61,7 @@ namespace DeloG
         public static IEnumerator Action(Action action)
         {
             action();
-            yield return null;
+            yield break;
         }
         public static IEnumerator Wait(float seconds)
         {

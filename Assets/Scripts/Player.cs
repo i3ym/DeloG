@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using DeloG.Interactables;
 using DeloG.Items;
@@ -100,22 +101,31 @@ namespace DeloG
         {
             PlayerMove.enabled = false;
             Collider.enabled = false;
-            car.Enabled = true;
             transform.SetParent(car.transform);
             CarEnterLocalPos = transform.localPosition;
-            transform.localPosition = car.PlayerPosition.localPosition;
-            transform.localRotation = default;
             Rigidbody.isKinematic = true;
+
+            StartCoroutine(
+                Animator.Animate(
+                    Animator.MoveToLocal(transform, car.PlayerPosition.localPosition, 1f, Easing.InOutCubic),
+                    () => car.Enabled = true
+                ));
         }
         public void ExitCar(Car car)
         {
-            PlayerMove.enabled = true;
-            Collider.enabled = true;
             car.Enabled = false;
-            transform.localPosition = CarEnterLocalPos;
-            transform.SetParent(null);
-            transform.localRotation = default;
-            Rigidbody.isKinematic = false;
+
+            StartCoroutine(
+                Animator.Animate(
+                    Animator.MoveToLocal(transform, CarEnterLocalPos, 1f, Easing.InOutCubic),
+                    () =>
+                    {
+                        PlayerMove.enabled = true;
+                        Collider.enabled = true;
+                        transform.SetParent(null);
+                        Rigidbody.isKinematic = false;
+                    }
+                ));
         }
     }
 }
