@@ -14,7 +14,7 @@ namespace DeloG
         public event Action<bool> OnPlayerJoinExit = delegate { };
 
         [SerializeField] float MotorTorque = 500; // скорость
-        [SerializeField] [Range(0, .1f)] float LerpAmount = .04f; // скорость вращения колёс
+        [SerializeField] [Range(0, .1f)] float LerpAmount = .04f; // скорость вращения руля
         float MotorTorqueFast => MotorTorque * 1.5f; // скорость на шифт
 
         [SerializeField] public Transform PlayerPosition = null;
@@ -56,7 +56,7 @@ namespace DeloG
             {
                 var hor = Input.GetAxisRaw("Horizontal");
                 if (hor == 0) Horizontal = Input.GetAxis("Horizontal");
-                else Horizontal = Mathf.Lerp(Horizontal, hor, .04f);
+                else Horizontal = Mathf.Lerp(Horizontal, hor, LerpAmount);
 
                 if (IsTurnedOn)
                 {
