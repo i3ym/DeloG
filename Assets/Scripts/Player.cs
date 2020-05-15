@@ -1,8 +1,5 @@
-using System.Collections;
 using UnityEngine;
 using DeloG.Interactables;
-using DeloG.Items;
-using UnityEngine.UIElements.Experimental;
 
 namespace DeloG
 {
@@ -18,7 +15,6 @@ namespace DeloG
         public Rigidbody Rigidbody { get; private set; }
         public ItemHolder Inventory { get; private set; }
 
-        Vector3 CarEnterLocalPos;
         Interactable HighlightingInteractable;
 
         void Start()
@@ -62,7 +58,7 @@ namespace DeloG
         bool TryInteract(RaycastHit hit)
         {
             var interactable = hit.collider.GetComponent<Interactable>();
-            if (interactable is null) return false;
+            if (interactable is null || !interactable) return false;
 
             if (HighlightingInteractable != interactable && interactable != Inventory.CurrentItem)
             {
@@ -96,36 +92,5 @@ namespace DeloG
             Inventory.RemoveItem(Inventory.CurrentItem);
         }
         public void UseCurrentItem() => Inventory.CurrentItem?.Use(this);
-
-        public void EnterCar(Car car)
-        {
-            PlayerMove.enabled = false;
-            Collider.enabled = false;
-            transform.SetParent(car.transform);
-            CarEnterLocalPos = transform.localPosition;
-            Rigidbody.isKinematic = true;
-
-            StartCoroutine(
-                Animator.Animate(
-                    Animator.MoveToLocal(transform, car.PlayerPosition.localPosition, 1f, Easing.InOutCubic),
-                    () => car.Enabled = true
-                ));
-        }
-        public void ExitCar(Car car)
-        {
-            car.Enabled = false;
-
-            StartCoroutine(
-                Animator.Animate(
-                    Animator.MoveToLocal(transform, CarEnterLocalPos, 1f, Easing.InOutCubic),
-                    () =>
-                    {
-                        PlayerMove.enabled = true;
-                        Collider.enabled = true;
-                        transform.SetParent(null);
-                        Rigidbody.isKinematic = false;
-                    }
-                ));
-        }
     }
 }
