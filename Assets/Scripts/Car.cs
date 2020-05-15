@@ -92,7 +92,8 @@ namespace DeloG
             StartCoroutine(
                 Animator.Animate(
                     Animator.AnimateConcurrent(
-                        Animator.MoveToWorld(player.transform, PlayerPosition.position, 1f, Easing.InOutCubic)
+                        Animator.MoveToLocal(player.transform,
+                            transform.InverseTransformPoint(PlayerPosition.position), 1f, Easing.InOutCubic)
                     ),
                     () => Enabled = true
                 ));
