@@ -1,6 +1,5 @@
 using DeloG.Items;
 using UnityEngine;
-using UnityEngine.UIElements.Experimental;
 
 namespace DeloG.Interactables
 {
