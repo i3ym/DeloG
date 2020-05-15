@@ -70,6 +70,11 @@ namespace DeloG
             while (time > Time.time)
                 yield return null;
         }
+        public static IEnumerator WaitForFrames(int frames)
+        {
+            for (int i = 0; i < frames; i++)
+                yield return null;
+        }
 
 
         public static IEnumerator<TVal> Animate<TVal>(TVal start, TVal end, float time,
@@ -94,6 +99,7 @@ namespace DeloG
 
             yield return end();
         }
+
 
         public static IEnumerator MoveTo(Transform transform, Vector3 end, float time, Func<float, float> easing, bool local) =>
             local ? MoveToLocal(transform, end, time, easing) : MoveToWorld(transform, end, time, easing);
@@ -125,5 +131,22 @@ namespace DeloG
             Animate(transform.rotation, end, time, Quaternion.Lerp, easing, (rot) => transform.rotation = rot);
         public static IEnumerator RotateToWorld(Transform transform, Func<Quaternion> end, float time, Func<float, float> easing) =>
             Animate(transform.rotation, end, time, Quaternion.Lerp, easing, (rot) => transform.rotation = rot);
+
+
+        public static IEnumerator ScaleTo(Transform transform, Vector3 end, float time, Func<float, float> easing) =>
+            Animate(transform.localPosition, end, time, Vector3.Lerp, easing, (pos) => transform.localScale = pos);
+        public static IEnumerator ScaleTo(Transform transform, Func<Vector3> end, float time, Func<float, float> easing) =>
+            Animate(transform.localPosition, end, time, Vector3.Lerp, easing, (pos) => transform.localScale = pos);
+    }
+
+    public static class Easing
+    {
+        public static float InOutCubic(float t) => UnityEngine.UIElements.Experimental.Easing.InOutCubic(t);
+        public static float OutCubic(float t) => UnityEngine.UIElements.Experimental.Easing.OutCubic(t);
+
+        public static float InOutQuad(float t) => UnityEngine.UIElements.Experimental.Easing.InOutQuad(t);
+        public static float OutQuad(float t) => UnityEngine.UIElements.Experimental.Easing.OutQuad(t);
+
+        public static float Linear(float t) => UnityEngine.UIElements.Experimental.Easing.Linear(t);
     }
 }
