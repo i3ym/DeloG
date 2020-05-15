@@ -101,14 +101,14 @@ namespace DeloG
             local ? MoveToLocal(transform, end, time, easing) : MoveToWorld(transform, end, time, easing);
 
         public static IEnumerator MoveToLocal(Transform transform, Vector3 end, float time, Func<float, float> easing) =>
-            Animate(transform.localPosition, end, time, Vector3.Lerp, easing, (rot) => transform.localPosition = rot);
+            Animate(transform.localPosition, end, time, Vector3.Lerp, easing, (pos) => transform.localPosition = pos);
         public static IEnumerator MoveToLocal(Transform transform, Func<Vector3> end, float time, Func<float, float> easing) =>
-            Animate(transform.localPosition, end, time, Vector3.Lerp, easing, (rot) => transform.localPosition = rot);
+            Animate(transform.localPosition, end, time, Vector3.Lerp, easing, (pos) => transform.localPosition = pos);
 
         public static IEnumerator MoveToWorld(Transform transform, Vector3 end, float time, Func<float, float> easing) =>
-            Animate(transform.position, end, time, Vector3.Lerp, easing, (rot) => transform.position = rot);
+            Animate(transform.position, end, time, Vector3.Lerp, easing, (pos) => transform.position = pos);
         public static IEnumerator MoveToWorld(Transform transform, Func<Vector3> end, float time, Func<float, float> easing) =>
-            Animate(transform.position, end, time, Vector3.Lerp, easing, (rot) => transform.position = rot);
+            Animate(transform.position, end, time, Vector3.Lerp, easing, (pos) => transform.position = pos);
 
 
         public static IEnumerator RotateTo(Transform transform, Quaternion end, float time, Func<float, float> easing, bool local) =>
