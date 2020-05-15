@@ -14,6 +14,7 @@ namespace DeloG.Interactables
             Lamp.material.SetColor("_EmissionColor", Lamp.material.color);
         }
 
+        protected override void OnToggle(bool toggled) { }
         protected override void ToggleLights(bool enabled)
         {
             base.ToggleLights(enabled);

@@ -13,7 +13,7 @@ namespace DeloG.Interactables
 
             ExitCarObject.OnInteraction += (player) =>
             {
-                player.ExitCar(Car);
+                Car.Exit(player);
                 ExitCarObject.gameObject.SetActive(false);
             };
             ExitCarObject.gameObject.SetActive(false);
@@ -21,7 +21,7 @@ namespace DeloG.Interactables
 
         public override void DoInteraction(Player player)
         {
-            player.EnterCar(Car);
+            Car.Enter(player);
             ExitCarObject.gameObject.SetActive(true);
         }
     }

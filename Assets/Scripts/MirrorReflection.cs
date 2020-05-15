@@ -3,7 +3,6 @@ using System.Collections;
 
 namespace DeloG
 {
-    [ExecuteInEditMode]
     public class MirrorReflection : MonoBehaviour
     {
         static bool InsideRendering = false;
@@ -20,10 +19,7 @@ namespace DeloG
 
         Renderer Renderer;
 
-        void Start()
-        {
-            Renderer = GetComponent<Renderer>();
-        }
+        void Start() => Renderer = GetComponent<Renderer>();
 
         void OnWillRenderObject()
         {

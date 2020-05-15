@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements.Experimental;
 
 namespace DeloG
 {
@@ -9,7 +10,7 @@ namespace DeloG
         const float MaxWheelAngle = 45; // максимальный угол поворота колёс
         const float SteeringWheelMultiplier = 6; // умножение кручение руля
 
-        public event Action<bool> OnChangeState = delegate { };
+        public event Action<bool> OnTurnOnOff = delegate { };
         public event Action<bool> OnPlayerJoinExit = delegate { };
 
         [SerializeField] float MotorTorque = 500; // скорость
@@ -25,7 +26,7 @@ namespace DeloG
         public bool IsTurnedOn
         {
             get => _IsTurnedOn;
-            set => OnChangeState(_IsTurnedOn = value);
+            set => OnTurnOnOff(_IsTurnedOn = value);
         }
         public bool Enabled = false;
         [HideInInspector] bool _IsTurnedOn = false;
@@ -33,6 +34,7 @@ namespace DeloG
         float Horizontal = 0f;
         float SteeringWheelAngle = 0f;
         Vector3 StartSteeringWheelRotation;
+        Vector3 PlayerQuitPos;
 
         public void Start()
         {
@@ -47,37 +49,72 @@ namespace DeloG
 
         void Update()
         {
-            var hor = Input.GetAxisRaw("Horizontal");
-            if (hor == 0) Horizontal = Input.GetAxis("Horizontal");
-            else Horizontal = Mathf.Lerp(Horizontal, hor, .04f);
-
-            DoMovement();
-        }
-        void DoMovement()
-        {
-            if (!Enabled) return;
-
-            var angle = Horizontal * MaxWheelAngle;
-            var steerangle = angle * SteeringWheelMultiplier;
-            SteeringWheel.Rotate(SteeringWheel.up, -(SteeringWheelAngle - steerangle), Space.World);
-            SteeringWheelAngle = steerangle;
-
             float torque = 0;
             float brake = 0;
 
-            if (IsTurnedOn)
+            if (Enabled)
             {
-                var isbrake = Input.GetKey(KeyCode.Space);
-                var isfast = Input.GetKey(KeyCode.LeftShift);
+                var hor = Input.GetAxisRaw("Horizontal");
+                if (hor == 0) Horizontal = Input.GetAxis("Horizontal");
+                else Horizontal = Mathf.Lerp(Horizontal, hor, .04f);
 
-                var speed = isfast ? MotorTorqueFast : MotorTorque;
-                brake = isbrake ? speed * 5 : 0;
-                torque = isbrake ? 0 : Input.GetAxis("Vertical") * speed;
+                if (IsTurnedOn)
+                {
+                    var isbrake = Input.GetKey(KeyCode.Space);
+                    var isfast = Input.GetKey(KeyCode.LeftShift);
+
+                    var speed = isfast ? MotorTorqueFast : MotorTorque;
+                    brake = isbrake ? speed * 5 : 0;
+                    torque = isbrake ? 0 : Input.GetAxis("Vertical") * speed;
+                }
             }
+
+            var angle = Horizontal * MaxWheelAngle;
+            var steerangle = angle * SteeringWheelMultiplier;
+            SteeringWheel.Rotate(SteeringWheel.up, steerangle - SteeringWheelAngle, Space.World);
+            SteeringWheelAngle = steerangle;
+
             if (IsHandbrakeOn) brake = MotorTorqueFast * 10_000; // сила остановки ручником
 
             foreach (var wheel in Wheels)
                 wheel.SetInputs(torque, brake, angle);
+        }
+
+        public void Enter(Player player)
+        {
+            player.PlayerMove.enabled = false;
+            player.Collider.enabled = false;
+            player.transform.SetParent(transform);
+            PlayerQuitPos = player.transform.localPosition;
+            player.Rigidbody.isKinematic = true;
+            OnPlayerJoinExit(true);
+
+            StartCoroutine(
+                Animator.Animate(
+                    Animator.AnimateConcurrent(
+                        Animator.MoveToWorld(player.transform, PlayerPosition.position, 1f, Easing.InOutCubic)
+                    ),
+                    () => Enabled = true
+                ));
+        }
+        public void Exit(Player player)
+        {
+            Enabled = false;
+            OnPlayerJoinExit(false);
+
+            StartCoroutine(
+                Animator.Animate(
+                    Animator.AnimateConcurrent(
+                        Animator.MoveToLocal(player.transform, PlayerQuitPos, 1f, Easing.InOutCubic)
+                    ),
+                    () =>
+                    {
+                        player.PlayerMove.enabled = true;
+                        player.Collider.enabled = true;
+                        player.transform.SetParent(null);
+                        player.Rigidbody.isKinematic = false;
+                    }
+                ));
         }
 
         void OnDisable()

@@ -10,9 +10,10 @@ namespace DeloG.Interactables
         public bool IsToggled { get; private set; } = false;
         Coroutine Animation;
 
-        public override void DoInteraction(Player player)
+        public override void DoInteraction(Player player) => Toggle(!IsToggled);
+        protected void Toggle(bool toggle)
         {
-            IsToggled = !IsToggled;
+            IsToggled = toggle;
 
             if (Animation != null) StopCoroutine(Animation);
 
