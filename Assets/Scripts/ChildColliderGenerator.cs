@@ -35,6 +35,8 @@ namespace DeloG
                     objectTo = child.parent.gameObject;
                 else objectTo = child.gameObject;
 
+                if (objectTo.GetComponent<Collider>()) continue;
+
                 if (IsMeshBox(meshf.mesh)) objectTo.AddComponent<BoxCollider>();
                 else
                 {
