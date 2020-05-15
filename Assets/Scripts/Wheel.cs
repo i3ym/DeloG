@@ -34,7 +34,7 @@ namespace DeloG
         }
         public void SetAngle(float horizontalAngle)
         {
-            Mesh.transform.Rotate(Mesh.transform.right, Collider.rpm * 360 / 60 * Time.fixedDeltaTime, Space.World);
+            Mesh.transform.Rotate(-Mesh.transform.right, Collider.rpm * 360 / 60 * Time.fixedDeltaTime, Space.World);
 
             if (Rotatable)
             {
