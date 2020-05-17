@@ -58,7 +58,7 @@ namespace DeloG
         bool TryInteract(RaycastHit hit)
         {
             var interactable = hit.collider.GetComponent<Interactable>();
-            if (interactable is null || !interactable) return false;
+            if (interactable is null || !interactable || !interactable.Enabled) return false;
 
             if (HighlightingInteractable != interactable && interactable != Inventory.CurrentItem)
             {

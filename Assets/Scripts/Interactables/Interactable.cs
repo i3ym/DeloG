@@ -7,6 +7,7 @@ namespace DeloG.Interactables
     {
         [SerializeField] ColliderCreation CreateCollider = ColliderCreation.DontCreate;
 
+        public bool Enabled { get; protected set; } = true;
         Renderer Renderer;
         bool DoStopCoroutine = false;
 

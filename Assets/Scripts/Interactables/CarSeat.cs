@@ -14,6 +14,7 @@ namespace DeloG.Interactables
             {
                 Car.Exit(player);
                 ExitCarObject.gameObject.SetActive(false);
+                Enabled = true;
             };
             ExitCarObject.gameObject.SetActive(false);
         }
@@ -22,6 +23,7 @@ namespace DeloG.Interactables
         {
             Car.Enter(player);
             ExitCarObject.gameObject.SetActive(true);
+            Enabled = false;
         }
     }
 }
