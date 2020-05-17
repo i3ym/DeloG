@@ -1136,6 +1136,26 @@ Transform:
   m_Father: {fileID: 876561014}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &400247160 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5599556640319251686, guid: 49126a360869ec769858ee48d53c69e4, type: 3}
+  m_PrefabInstance: {fileID: 1890660477}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &400247164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 400247160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88cc565e4f9591351bb2d57d92a246a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CreateCollider: 2
+  Car: {fileID: 0}
+  Door: {fileID: 0}
 --- !u!1 &408114745
 GameObject:
   m_ObjectHideFlags: 0
@@ -3085,6 +3105,23 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1292811569}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1304027288 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6799715351364000221, guid: 49126a360869ec769858ee48d53c69e4, type: 3}
+  m_PrefabInstance: {fileID: 1890660477}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1304027292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1304027288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a759b0ff28e0603e9adbfad6342941d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1360780480
 GameObject:
   m_ObjectHideFlags: 0

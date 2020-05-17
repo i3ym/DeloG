@@ -23,6 +23,15 @@ namespace DeloG
                     yield return null;
             }
         }
+        public static IEnumerator Animate(IEnumerator anim1, params Func<IEnumerator>[] animations)
+        {
+            while (anim1.MoveNext())
+                yield return null;
+
+            var anim2 = Animate(animations);
+            while (anim2.MoveNext())
+                yield return null;
+        }
         public static IEnumerator AnimateConcurrent(params IEnumerator[] animations) => AnimateConcurrent(animations, null);
         public static IEnumerator AnimateConcurrent(Action after, params IEnumerator[] animations) => AnimateConcurrent(animations, after);
         public static IEnumerator AnimateConcurrent(IEnumerable<IEnumerator> animations, Action after = null)
@@ -107,14 +116,14 @@ namespace DeloG
             local ? MoveToLocal(transform, end, time, easing) : MoveToWorld(transform, end, time, easing);
 
         public static IEnumerator MoveToLocal(Transform transform, Vector3 end, float time, Func<float, float> easing) =>
-            Animate(transform.localPosition, end, time, Vector3.Lerp, easing, (pos) => transform.localPosition = pos);
+            Animate(transform.localPosition, end, time, Vector3.LerpUnclamped, easing, (pos) => transform.localPosition = pos);
         public static IEnumerator MoveToLocal(Transform transform, Func<Vector3> end, float time, Func<float, float> easing) =>
-            Animate(transform.localPosition, end, time, Vector3.Lerp, easing, (pos) => transform.localPosition = pos);
+            Animate(transform.localPosition, end, time, Vector3.LerpUnclamped, easing, (pos) => transform.localPosition = pos);
 
         public static IEnumerator MoveToWorld(Transform transform, Vector3 end, float time, Func<float, float> easing) =>
-            Animate(transform.position, end, time, Vector3.Lerp, easing, (pos) => transform.position = pos);
+            Animate(transform.position, end, time, Vector3.LerpUnclamped, easing, (pos) => transform.position = pos);
         public static IEnumerator MoveToWorld(Transform transform, Func<Vector3> end, float time, Func<float, float> easing) =>
-            Animate(transform.position, end, time, Vector3.Lerp, easing, (pos) => transform.position = pos);
+            Animate(transform.position, end, time, Vector3.LerpUnclamped, easing, (pos) => transform.position = pos);
 
 
         public static IEnumerator RotateTo(Transform transform, Quaternion end, float time, Func<float, float> easing, bool local) =>
@@ -123,27 +132,33 @@ namespace DeloG
             local ? RotateToLocal(transform, end, time, easing) : RotateToWorld(transform, end, time, easing);
 
         public static IEnumerator RotateToLocal(Transform transform, Quaternion end, float time, Func<float, float> easing) =>
-            Animate(transform.localRotation, end, time, Quaternion.Lerp, easing, (rot) => transform.localRotation = rot);
+            Animate(transform.localRotation, end, time, Quaternion.LerpUnclamped, easing, (rot) => transform.localRotation = rot);
         public static IEnumerator RotateToLocal(Transform transform, Func<Quaternion> end, float time, Func<float, float> easing) =>
-            Animate(transform.localRotation, end, time, Quaternion.Lerp, easing, (rot) => transform.localRotation = rot);
+            Animate(transform.localRotation, end, time, Quaternion.LerpUnclamped, easing, (rot) => transform.localRotation = rot);
 
         public static IEnumerator RotateToWorld(Transform transform, Quaternion end, float time, Func<float, float> easing) =>
-            Animate(transform.rotation, end, time, Quaternion.Lerp, easing, (rot) => transform.rotation = rot);
+            Animate(transform.rotation, end, time, Quaternion.LerpUnclamped, easing, (rot) => transform.rotation = rot);
         public static IEnumerator RotateToWorld(Transform transform, Func<Quaternion> end, float time, Func<float, float> easing) =>
-            Animate(transform.rotation, end, time, Quaternion.Lerp, easing, (rot) => transform.rotation = rot);
+            Animate(transform.rotation, end, time, Quaternion.LerpUnclamped, easing, (rot) => transform.rotation = rot);
 
 
         public static IEnumerator ScaleTo(Transform transform, Vector3 end, float time, Func<float, float> easing) =>
-            Animate(transform.localPosition, end, time, Vector3.Lerp, easing, (pos) => transform.localScale = pos);
+            Animate(transform.localPosition, end, time, Vector3.LerpUnclamped, easing, (pos) => transform.localScale = pos);
         public static IEnumerator ScaleTo(Transform transform, Func<Vector3> end, float time, Func<float, float> easing) =>
-            Animate(transform.localPosition, end, time, Vector3.Lerp, easing, (pos) => transform.localScale = pos);
+            Animate(transform.localPosition, end, time, Vector3.LerpUnclamped, easing, (pos) => transform.localScale = pos);
     }
 
     public static class Easing
     {
+        public static float InBack(float t) => UnityEngine.UIElements.Experimental.Easing.InBack(t);
+        public static float InOutBack(float t) => UnityEngine.UIElements.Experimental.Easing.InOutBack(t);
+        public static float OutBack(float t) => UnityEngine.UIElements.Experimental.Easing.OutBack(t);
+
+        public static float InCubic(float t) => UnityEngine.UIElements.Experimental.Easing.InCubic(t);
         public static float InOutCubic(float t) => UnityEngine.UIElements.Experimental.Easing.InOutCubic(t);
         public static float OutCubic(float t) => UnityEngine.UIElements.Experimental.Easing.OutCubic(t);
 
+        public static float InQuad(float t) => UnityEngine.UIElements.Experimental.Easing.InQuad(t);
         public static float InOutQuad(float t) => UnityEngine.UIElements.Experimental.Easing.InOutQuad(t);
         public static float OutQuad(float t) => UnityEngine.UIElements.Experimental.Easing.OutQuad(t);
 

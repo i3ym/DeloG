@@ -10,13 +10,21 @@ namespace DeloG.Interactables
         void Awake() => StartLocalPosition = transform.localPosition;
 
         public override IEnumerator OpenAnimation() =>
-            Animator.Animate(
-                () => Animator.MoveToLocal(transform, StartLocalPosition + new Vector3(.2f, 0, 0), .7f, Easing.Linear),
-                () => Animator.MoveToLocal(transform, StartLocalPosition + new Vector3(.2f, 0, -1.7f), 1f, Easing.OutCubic));
+            Animator.AnimateConcurrent(
+                Animator.Animate(transform.localPosition.x, StartLocalPosition.x - .2f, .7f, Mathf.LerpUnclamped,
+                    Easing.OutBack, (x) => transform.localPosition = new Vector3(x, transform.localPosition.y, transform.localPosition.z)),
+                Animator.Animate(transform.localPosition.z, StartLocalPosition.z + 1.7f, 1f, Mathf.LerpUnclamped,
+                    Easing.Linear, (z) => transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, z))
+            );
 
         public override IEnumerator CloseAnimation() =>
-            Animator.Animate(
-                () => Animator.MoveToLocal(transform, StartLocalPosition + new Vector3(.2f, 0, 0f), 1f, Easing.OutCubic),
-                () => Animator.MoveToLocal(transform, StartLocalPosition, .7f, Easing.Linear));
+            Animator.AnimateConcurrent(
+                Animator.Animate(
+                    Animator.Wait(.3f),
+                    () => Animator.Animate(transform.localPosition.x, StartLocalPosition.x, .7f, Mathf.LerpUnclamped,
+                        Easing.InBack, (x) => transform.localPosition = new Vector3(x, transform.localPosition.y, transform.localPosition.z))),
+                Animator.Animate(transform.localPosition.z, StartLocalPosition.z, 1f, Mathf.LerpUnclamped,
+                    Easing.Linear, (z) => transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, z))
+            );
     }
 }
