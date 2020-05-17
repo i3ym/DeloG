@@ -2,9 +2,8 @@ using UnityEngine;
 
 namespace DeloG.Interactables
 {
-    public class CarSeat : Interactable
+    public class CarSeat : CarInteractable
     {
-        [SerializeField] Car Car = null;
         [SerializeField] CarSeatOut ExitCarObject = null;
 
         protected override void Awake()

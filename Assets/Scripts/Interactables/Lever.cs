@@ -3,10 +3,8 @@ using UnityEngine;
 
 namespace DeloG.Interactables
 {
-    public abstract class Lever : Interactable
+    public abstract class Lever : CarInteractable
     {
-        [SerializeField] protected Car Car = null;
-
         public bool IsToggled { get; private set; } = false;
         Coroutine Animation;
 
