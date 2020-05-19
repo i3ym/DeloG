@@ -146,6 +146,7 @@ namespace DeloG
         public interface IPercentageGetter
         {
             float GetPercentage();
+            void Restart();
 
             ReversePercentageGetter Reverse();
         }
@@ -155,20 +156,23 @@ namespace DeloG
         }
         public class TimePercentageGetter : PercentageGetter, IPercentageGetter
         {
-            readonly float Start = Time.time;
             readonly float Duration;
+            float Start = Time.time;
 
             public TimePercentageGetter(float duration) => Duration = duration;
 
             public float GetPercentage() => (Time.time - Start) / Duration;
+            public void Restart() => Start = Time.time;
         }
         public class CountPercentageGetter : PercentageGetter, IPercentageGetter
         {
-            readonly int Current, Duration;
+            readonly int Duration;
+            int Current;
 
             public CountPercentageGetter(int duration) => Duration = duration;
 
-            public float GetPercentage() => Current / (float) Duration;
+            public float GetPercentage() => (Current++) / (float) Duration;
+            public void Restart() => Current = 0;
         }
         public class ReversePercentageGetter : PercentageGetter, IPercentageGetter
         {
@@ -177,6 +181,7 @@ namespace DeloG
             public ReversePercentageGetter(IPercentageGetter getter) => PercentageGetter = getter;
 
             public float GetPercentage() => 1f - PercentageGetter.GetPercentage();
+            public void Restart() => PercentageGetter.Restart();
         }
 
         public interface IValuesGetter<TVal>
@@ -185,6 +190,7 @@ namespace DeloG
             TVal GetEndValue();
 
             void ApplyValue(TVal value);
+            void Reset();
         }
         public abstract class TransformValuesGetter<TVal> : IValuesGetter<TVal>
         {
@@ -196,26 +202,22 @@ namespace DeloG
             public abstract TVal GetEndValue();
 
             public abstract void ApplyValue(TVal value);
+
+            public void Reset() => ApplyValue(GetStartValue());
         }
         public class TransformPositionGetter : TransformValuesGetter<Vector3>
         {
             readonly bool Local;
-            readonly Vector3 EndPosition;
-            Vector3 StartPosition => (_StartPosition ?? (_StartPosition = Local ? Transform.localPosition : Transform.position)).Value;
-            Vector3? _StartPosition;
+            readonly Vector3 StartPosition, EndPosition;
 
             public TransformPositionGetter(Transform transform, Vector3 startPos, Vector3 endPos, bool local) : base(transform)
             {
                 EndPosition = endPos;
                 Local = local;
-
-                _StartPosition = startPos;
+                StartPosition = startPos;
             }
-            public TransformPositionGetter(Transform transform, Vector3 endPos, bool local) : base(transform)
-            {
-                EndPosition = endPos;
-                Local = local;
-            }
+            public TransformPositionGetter(Transform transform, Vector3 endPos, bool local)
+                : this(transform, local ? transform.localPosition : transform.position, endPos, local) { }
 
             public override Vector3 GetStartValue() => StartPosition;
             public override Vector3 GetEndValue() => EndPosition;
@@ -225,22 +227,21 @@ namespace DeloG
                 if (Local) Transform.localPosition = value;
                 else Transform.position = value;
             }
-
-            public void Bake(TransformPositionGetter getter) => _StartPosition = getter.StartPosition;
         }
         public class TransformRotationGetter : TransformValuesGetter<Quaternion>
         {
             readonly bool Local;
-            readonly Quaternion Rotation;
+            readonly Quaternion StartRotation, EndRotation;
 
             public TransformRotationGetter(Transform transform, Quaternion rot, bool local) : base(transform)
             {
-                Rotation = rot;
+                EndRotation = rot;
                 Local = local;
+                StartRotation = Local ? Transform.localRotation : Transform.rotation;
             }
 
-            public override Quaternion GetStartValue() => Local ? Transform.localRotation : Transform.rotation;
-            public override Quaternion GetEndValue() => Rotation;
+            public override Quaternion GetStartValue() => StartRotation;
+            public override Quaternion GetEndValue() => EndRotation;
 
             public override void ApplyValue(Quaternion value)
             {
@@ -250,13 +251,16 @@ namespace DeloG
         }
         public class TransformScaleGetter : TransformValuesGetter<Vector3>
         {
-            readonly Vector3 Scale;
+            readonly Vector3 StartScale, EndScale;
 
-            public TransformScaleGetter(Transform transform, Vector3 scale) : base(transform) =>
-                Scale = scale;
+            public TransformScaleGetter(Transform transform, Vector3 scale) : base(transform)
+            {
+                EndScale = scale;
+                StartScale = transform.localScale;
+            }
 
-            public override Vector3 GetStartValue() => Transform.localScale;
-            public override Vector3 GetEndValue() => Scale;
+            public override Vector3 GetStartValue() => StartScale;
+            public override Vector3 GetEndValue() => EndScale;
 
             public override void ApplyValue(Vector3 value) => Transform.localScale = value;
         }
@@ -264,6 +268,8 @@ namespace DeloG
         public interface ITransformAnimation
         {
             IEnumerator Coroutine();
+
+            void Reset();
         }
         public interface IReversableTransformAnimation : ITransformAnimation
         {
@@ -274,51 +280,38 @@ namespace DeloG
             readonly Func<TVal, TVal, float, TVal> LerpFunc;
             readonly Func<float, float> EasingFunc;
 
-            readonly Func<IPercentageGetter> PercentageGetterFunc;
-            readonly Func<IValuesGetter<TVal>> ValuesGetterFunc;
+            readonly IPercentageGetter PercentageGetter;
+            readonly IValuesGetter<TVal> ValuesGetter;
 
             public TransformAnimation(Func<TVal, TVal, float, TVal> lerpFunc,
-                Func<float, float> easingFunc, Func<IPercentageGetter> percentageGetterFunc, Func<IValuesGetter<TVal>> valuesGetterFunc)
+                Func<float, float> easingFunc, IPercentageGetter percentageGetter, IValuesGetter<TVal> valuesGetter)
             {
                 LerpFunc = lerpFunc;
                 EasingFunc = easingFunc;
-                PercentageGetterFunc = percentageGetterFunc;
-                ValuesGetterFunc = valuesGetterFunc;
+                PercentageGetter = percentageGetter;
+                ValuesGetter = valuesGetter;
             }
 
-            public IEnumerator Coroutine()
+            public IEnumerator Coroutine() => Animator.Animate(ValueAnimation(), ValuesGetter.ApplyValue);
+            IEnumerator<TVal> ValueAnimation()
             {
-                var values = ValuesGetterFunc();
-                return Animator.Animate(ValueAnimation(values), values.ApplyValue);
-            }
-            IEnumerator<TVal> ValueAnimation(IValuesGetter<TVal> values)
-            {
-                var percentage = PercentageGetterFunc();
-                var startval = values.GetStartValue();
+                PercentageGetter.Restart();
 
                 while (true)
                 {
-                    var percent = percentage.GetPercentage();
+                    var percent = PercentageGetter.GetPercentage();
                     if (percent > 1f || percent < 0f) break;
 
-                    yield return GetValueForTime(startval, values.GetEndValue(), percent);
+                    yield return GetValueForTime(ValuesGetter.GetStartValue(), ValuesGetter.GetEndValue(), percent);
                 }
             }
 
+            public void Reset() => ValuesGetter.Reset();
+
             protected TVal GetValueForTime(TVal start, TVal end, float percent) => LerpFunc(start, end, EasingFunc(percent));
 
-            public ITransformAnimation Reverse()
-            {
-                var source = ValuesGetterFunc();
-                return new TransformAnimation<TVal>(LerpFunc, EasingFunc,
-                    () => PercentageGetterFunc().Reverse(),
-                    () =>
-                    {
-                        var value = ValuesGetterFunc();
-                        if (value is TransformPositionGetter posg) posg.Bake(source as TransformPositionGetter);
-                        return value;
-                    });
-            }
+            public ITransformAnimation Reverse() =>
+                new TransformAnimation<TVal>(LerpFunc, EasingFunc, PercentageGetter.Reverse(), ValuesGetter);
         }
         public class AnimationSequence : IReversableTransformAnimation
         {
@@ -329,11 +322,18 @@ namespace DeloG
 
             public IEnumerator Coroutine()
             {
-                foreach (var animation in Animations.Select(x => x.Coroutine()).ToArray())
+                foreach (var animation in Animations)
                 {
-                    while (animation.MoveNext())
+                    var coroutine = animation.Coroutine();
+                    while (coroutine.MoveNext())
                         yield return null;
                 }
+            }
+
+            public void Reset()
+            {
+                foreach (var anim in Animations.Reverse())
+                    anim.Reset();
             }
 
             public ITransformAnimation Reverse() =>
@@ -351,6 +351,8 @@ namespace DeloG
 
             public IEnumerator Coroutine()
             {
+                Reset();
+
                 var enumerators = Animations.Select(x => x.Coroutine()).ToArray();
 
                 bool exit = false;
@@ -364,6 +366,12 @@ namespace DeloG
                     if (exit) break;
                     yield return null;
                 }
+            }
+
+            public void Reset()
+            {
+                foreach (var anim in Animations)
+                    anim.Reset();
             }
 
             public ITransformAnimation Reverse() =>

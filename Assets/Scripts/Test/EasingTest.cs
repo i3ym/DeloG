@@ -5,7 +5,6 @@ namespace DeloG
     public class EasingTest : MonoBehaviour
     {
         Coroutine Coroutine;
-
         Animator.ITransformAnimation Sequence;
 
         void Awake()
@@ -13,21 +12,25 @@ namespace DeloG
             var seq = new Animator.AnimationSequence(
                 new Animator.TransformAnimation<Vector3>(
                     Vector3.LerpUnclamped, Easing.InBack,
-                    () => new Animator.TimePercentageGetter(1f),
-                    () => new Animator.TransformPositionGetter(transform, Vector2.one, false)),
+                    new Animator.TimePercentageGetter(1f),
+                    new Animator.TransformPositionGetter(transform, Vector2.one, false)),
                 new Animator.TransformAnimation<Vector3>(
-                    Vector3.LerpUnclamped, Easing.InBack,
-                    () => new Animator.TimePercentageGetter(1f),
-                    () => new Animator.TransformScaleGetter(transform, Vector3.one)));
+                    Vector3.LerpUnclamped, Easing.OutQuad,
+                    new Animator.TimePercentageGetter(1f),
+                    new Animator.TransformScaleGetter(transform, Vector3.one)));
 
-            Sequence = new Animator.AnimationSequence(seq, seq.Reverse());
+            Sequence = new Animator.AnimationSequence(seq, seq.Reverse(), seq);
         }
 
         void Update()
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                if (Coroutine != null) StopCoroutine(Coroutine);
+                if (Coroutine != null)
+                {
+                    StopCoroutine(Coroutine);
+                    Sequence.Reset();
+                }
 
                 transform.position = Vector3.zero;
                 Coroutine = StartCoroutine(Sequence.Coroutine());
