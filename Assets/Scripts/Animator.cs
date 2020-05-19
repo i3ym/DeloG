@@ -1,3 +1,4 @@
+using System.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -87,28 +88,22 @@ namespace DeloG
 
 
         public static IEnumerator<TVal> Animate<TVal>(TVal start, TVal end, float time,
-            Func<TVal, TVal, float, TVal> lerpFunc, Func<float, float> easingFunc)
-        {
-            var startt = Time.time;
-            var endt = startt + time;
+            Func<TVal, TVal, float, TVal> lerpFunc, Func<float, float> easingFunc, Func<float> timeFunc = null) =>
+            Animate(start, () => end, time, lerpFunc, easingFunc, timeFunc);
 
-            do yield return lerpFunc(start, end, easingFunc((Time.time - startt) / time));
-            while (Time.time < endt);
-
-            yield return end;
-        }
         public static IEnumerator<TVal> Animate<TVal>(TVal start, Func<TVal> end, float time,
-            Func<TVal, TVal, float, TVal> lerpFunc, Func<float, float> easingFunc)
+            Func<TVal, TVal, float, TVal> lerpFunc, Func<float, float> easingFunc, Func<float> timeFunc = null)
         {
-            var startt = Time.time;
+            if (timeFunc is null) timeFunc = () => Time.time;
+
+            var startt = timeFunc();
             var endt = startt + time;
 
-            do yield return lerpFunc(start, end(), easingFunc((Time.time - startt) / time));
-            while (Time.time < endt);
+            do yield return lerpFunc(start, end(), easingFunc((timeFunc() - startt) / time));
+            while (timeFunc() < endt);
 
             yield return end();
         }
-
 
         public static IEnumerator MoveTo(Transform transform, Vector3 end, float time, Func<float, float> easing, bool local) =>
             local ? MoveToLocal(transform, end, time, easing) : MoveToWorld(transform, end, time, easing);
@@ -146,6 +141,237 @@ namespace DeloG
             Animate(transform.localPosition, end, time, Vector3.LerpUnclamped, easing, (pos) => transform.localScale = pos);
         public static IEnumerator ScaleTo(Transform transform, Func<Vector3> end, float time, Func<float, float> easing) =>
             Animate(transform.localPosition, end, time, Vector3.LerpUnclamped, easing, (pos) => transform.localScale = pos);
+
+
+        public interface IPercentageGetter
+        {
+            float GetPercentage();
+
+            ReversePercentageGetter Reverse();
+        }
+        public class PercentageGetter
+        {
+            public ReversePercentageGetter Reverse() => new ReversePercentageGetter(this as IPercentageGetter);
+        }
+        public class TimePercentageGetter : PercentageGetter, IPercentageGetter
+        {
+            readonly float Start = Time.time;
+            readonly float Duration;
+
+            public TimePercentageGetter(float duration) => Duration = duration;
+
+            public float GetPercentage() => (Time.time - Start) / Duration;
+        }
+        public class CountPercentageGetter : PercentageGetter, IPercentageGetter
+        {
+            readonly int Current, Duration;
+
+            public CountPercentageGetter(int duration) => Duration = duration;
+
+            public float GetPercentage() => Current / (float) Duration;
+        }
+        public class ReversePercentageGetter : PercentageGetter, IPercentageGetter
+        {
+            readonly IPercentageGetter PercentageGetter;
+
+            public ReversePercentageGetter(IPercentageGetter getter) => PercentageGetter = getter;
+
+            public float GetPercentage() => 1f - PercentageGetter.GetPercentage();
+        }
+
+        public interface IValuesGetter<TVal>
+        {
+            TVal GetStartValue();
+            TVal GetEndValue();
+
+            void ApplyValue(TVal value);
+        }
+        public abstract class TransformValuesGetter<TVal> : IValuesGetter<TVal>
+        {
+            protected readonly Transform Transform;
+
+            public TransformValuesGetter(Transform transform) => Transform = transform;
+
+            public abstract TVal GetStartValue();
+            public abstract TVal GetEndValue();
+
+            public abstract void ApplyValue(TVal value);
+        }
+        public class TransformPositionGetter : TransformValuesGetter<Vector3>
+        {
+            readonly bool Local;
+            readonly Vector3 EndPosition;
+            Vector3 StartPosition => (_StartPosition ?? (_StartPosition = Local ? Transform.localPosition : Transform.position)).Value;
+            Vector3? _StartPosition;
+
+            public TransformPositionGetter(Transform transform, Vector3 startPos, Vector3 endPos, bool local) : base(transform)
+            {
+                EndPosition = endPos;
+                Local = local;
+
+                _StartPosition = startPos;
+            }
+            public TransformPositionGetter(Transform transform, Vector3 endPos, bool local) : base(transform)
+            {
+                EndPosition = endPos;
+                Local = local;
+            }
+
+            public override Vector3 GetStartValue() => StartPosition;
+            public override Vector3 GetEndValue() => EndPosition;
+
+            public override void ApplyValue(Vector3 value)
+            {
+                if (Local) Transform.localPosition = value;
+                else Transform.position = value;
+            }
+
+            public void Bake(TransformPositionGetter getter) => _StartPosition = getter.StartPosition;
+        }
+        public class TransformRotationGetter : TransformValuesGetter<Quaternion>
+        {
+            readonly bool Local;
+            readonly Quaternion Rotation;
+
+            public TransformRotationGetter(Transform transform, Quaternion rot, bool local) : base(transform)
+            {
+                Rotation = rot;
+                Local = local;
+            }
+
+            public override Quaternion GetStartValue() => Local ? Transform.localRotation : Transform.rotation;
+            public override Quaternion GetEndValue() => Rotation;
+
+            public override void ApplyValue(Quaternion value)
+            {
+                if (Local) Transform.localRotation = value;
+                else Transform.rotation = value;
+            }
+        }
+        public class TransformScaleGetter : TransformValuesGetter<Vector3>
+        {
+            readonly Vector3 Scale;
+
+            public TransformScaleGetter(Transform transform, Vector3 scale) : base(transform) =>
+                Scale = scale;
+
+            public override Vector3 GetStartValue() => Transform.localScale;
+            public override Vector3 GetEndValue() => Scale;
+
+            public override void ApplyValue(Vector3 value) => Transform.localScale = value;
+        }
+
+        public interface ITransformAnimation
+        {
+            IEnumerator Coroutine();
+        }
+        public interface IReversableTransformAnimation : ITransformAnimation
+        {
+            ITransformAnimation Reverse();
+        }
+        public class TransformAnimation<TVal> : IReversableTransformAnimation
+        {
+            readonly Func<TVal, TVal, float, TVal> LerpFunc;
+            readonly Func<float, float> EasingFunc;
+
+            readonly Func<IPercentageGetter> PercentageGetterFunc;
+            readonly Func<IValuesGetter<TVal>> ValuesGetterFunc;
+
+            public TransformAnimation(Func<TVal, TVal, float, TVal> lerpFunc,
+                Func<float, float> easingFunc, Func<IPercentageGetter> percentageGetterFunc, Func<IValuesGetter<TVal>> valuesGetterFunc)
+            {
+                LerpFunc = lerpFunc;
+                EasingFunc = easingFunc;
+                PercentageGetterFunc = percentageGetterFunc;
+                ValuesGetterFunc = valuesGetterFunc;
+            }
+
+            public IEnumerator Coroutine()
+            {
+                var values = ValuesGetterFunc();
+                return Animator.Animate(ValueAnimation(values), values.ApplyValue);
+            }
+            IEnumerator<TVal> ValueAnimation(IValuesGetter<TVal> values)
+            {
+                var percentage = PercentageGetterFunc();
+                var startval = values.GetStartValue();
+
+                while (true)
+                {
+                    var percent = percentage.GetPercentage();
+                    if (percent > 1f || percent < 0f) break;
+
+                    yield return GetValueForTime(startval, values.GetEndValue(), percent);
+                }
+            }
+
+            protected TVal GetValueForTime(TVal start, TVal end, float percent) => LerpFunc(start, end, EasingFunc(percent));
+
+            public ITransformAnimation Reverse()
+            {
+                var source = ValuesGetterFunc();
+                return new TransformAnimation<TVal>(LerpFunc, EasingFunc,
+                    () => PercentageGetterFunc().Reverse(),
+                    () =>
+                    {
+                        var value = ValuesGetterFunc();
+                        if (value is TransformPositionGetter posg) posg.Bake(source as TransformPositionGetter);
+                        return value;
+                    });
+            }
+        }
+        public class AnimationSequence : IReversableTransformAnimation
+        {
+            readonly IReadOnlyCollection<ITransformAnimation> Animations;
+
+            public AnimationSequence(IEnumerable<ITransformAnimation> animations) => Animations = animations.ToArray();
+            public AnimationSequence(params ITransformAnimation[] animations) : this(animations.AsEnumerable()) { }
+
+            public IEnumerator Coroutine()
+            {
+                foreach (var animation in Animations.Select(x => x.Coroutine()).ToArray())
+                {
+                    while (animation.MoveNext())
+                        yield return null;
+                }
+            }
+
+            public ITransformAnimation Reverse() =>
+                new AnimationSequence(Animations.Reverse().Select(x =>
+                    (x is IReversableTransformAnimation rev)
+                    ? rev.Reverse()
+                    : x));
+        }
+        public class AnimationConcurrent : IReversableTransformAnimation
+        {
+            readonly IReadOnlyCollection<ITransformAnimation> Animations;
+
+            public AnimationConcurrent(IEnumerable<ITransformAnimation> animations) => Animations = animations.ToArray();
+            public AnimationConcurrent(params ITransformAnimation[] animations) : this(animations.AsEnumerable()) { }
+
+            public IEnumerator Coroutine()
+            {
+                var enumerators = Animations.Select(x => x.Coroutine()).ToArray();
+
+                bool exit = false;
+
+                while (true)
+                {
+                    exit = true;
+                    foreach (var animation in enumerators)
+                        exit &= !animation.MoveNext();
+
+                    if (exit) break;
+                    yield return null;
+                }
+            }
+
+            public ITransformAnimation Reverse() =>
+                new AnimationConcurrent(Animations.Reverse().Select(x =>
+                    (x is IReversableTransformAnimation rev)
+                    ? rev.Reverse()
+                    : x));
+        }
     }
 
     public static class Easing
