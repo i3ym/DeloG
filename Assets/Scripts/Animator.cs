@@ -150,7 +150,7 @@ namespace DeloG
 
             ReversePercentageGetter Reverse();
         }
-        public class PercentageGetter
+        public abstract class PercentageGetter
         {
             public ReversePercentageGetter Reverse() => new ReversePercentageGetter(this as IPercentageGetter);
         }
@@ -273,7 +273,7 @@ namespace DeloG
         }
         public interface IReversableTransformAnimation : ITransformAnimation
         {
-            ITransformAnimation Reverse();
+            IEnumerator ReverseCoroutine();
         }
         public class TransformAnimation<TVal> : IReversableTransformAnimation
         {
@@ -282,6 +282,8 @@ namespace DeloG
 
             readonly IPercentageGetter PercentageGetter;
             readonly IValuesGetter<TVal> ValuesGetter;
+
+            float Progress = 0f;
 
             public TransformAnimation(Func<TVal, TVal, float, TVal> lerpFunc,
                 Func<float, float> easingFunc, IPercentageGetter percentageGetter, IValuesGetter<TVal> valuesGetter)
@@ -296,22 +298,41 @@ namespace DeloG
             IEnumerator<TVal> ValueAnimation()
             {
                 PercentageGetter.Restart();
+                var startProgress = Mathf.Clamp(Progress, 0, 1);
+                Progress = 0;
 
                 while (true)
                 {
-                    var percent = PercentageGetter.GetPercentage();
-                    if (percent > 1f || percent < 0f) break;
+                    Progress = startProgress + PercentageGetter.GetPercentage();
 
-                    yield return GetValueForTime(ValuesGetter.GetStartValue(), ValuesGetter.GetEndValue(), percent);
+                    if (Progress > 1f || Progress < 0f) break;
+                    yield return GetValueForTime(ValuesGetter.GetStartValue(), ValuesGetter.GetEndValue(), Progress);
                 }
+
+                yield return ValuesGetter.GetEndValue();
+            }
+
+            public IEnumerator ReverseCoroutine() => Animator.Animate(ReverseValueAnimation(), ValuesGetter.ApplyValue);
+            IEnumerator<TVal> ReverseValueAnimation()
+            {
+                PercentageGetter.Restart();
+                var startProgress = Mathf.Clamp(Progress, 0, 1);
+                Progress = 0;
+
+                while (true)
+                {
+                    Progress = startProgress - PercentageGetter.GetPercentage();
+
+                    if (Progress > 1f || Progress < 0f) break;
+                    yield return GetValueForTime(ValuesGetter.GetStartValue(), ValuesGetter.GetEndValue(), Progress);
+                }
+
+                yield return ValuesGetter.GetStartValue();
             }
 
             public void Reset() => ValuesGetter.Reset();
 
             protected TVal GetValueForTime(TVal start, TVal end, float percent) => LerpFunc(start, end, EasingFunc(percent));
-
-            public ITransformAnimation Reverse() =>
-                new TransformAnimation<TVal>(LerpFunc, EasingFunc, PercentageGetter.Reverse(), ValuesGetter);
         }
         public class AnimationSequence : IReversableTransformAnimation
         {
@@ -329,18 +350,25 @@ namespace DeloG
                         yield return null;
                 }
             }
+            public IEnumerator ReverseCoroutine()
+            {
+                foreach (var animation in Animations.Reverse())
+                {
+                    var coroutine =
+                        animation is IReversableTransformAnimation rev
+                        ? rev.ReverseCoroutine()
+                        : animation.Coroutine();
+
+                    while (coroutine.MoveNext())
+                        yield return null;
+                }
+            }
 
             public void Reset()
             {
-                foreach (var anim in Animations.Reverse())
+                foreach (var anim in Animations.Reverse()) // TODO why is Reverse() here?
                     anim.Reset();
             }
-
-            public ITransformAnimation Reverse() =>
-                new AnimationSequence(Animations.Reverse().Select(x =>
-                    (x is IReversableTransformAnimation rev)
-                    ? rev.Reverse()
-                    : x));
         }
         public class AnimationConcurrent : IReversableTransformAnimation
         {
@@ -351,9 +379,29 @@ namespace DeloG
 
             public IEnumerator Coroutine()
             {
-                Reset();
-
                 var enumerators = Animations.Select(x => x.Coroutine()).ToArray();
+
+                bool exit = false;
+
+                while (true)
+                {
+                    exit = true;
+                    foreach (var animation in enumerators)
+                        exit &= !animation.MoveNext();
+
+                    if (exit) break;
+                    yield return null;
+                }
+            }
+            public IEnumerator ReverseCoroutine()
+            {
+                var enumerators = Animations
+                    .Reverse()
+                    .Select(x =>
+                        x is IReversableTransformAnimation rev
+                        ? rev.ReverseCoroutine()
+                        : x.Coroutine())
+                    .ToArray();
 
                 bool exit = false;
 
@@ -373,12 +421,6 @@ namespace DeloG
                 foreach (var anim in Animations)
                     anim.Reset();
             }
-
-            public ITransformAnimation Reverse() =>
-                new AnimationConcurrent(Animations.Reverse().Select(x =>
-                    (x is IReversableTransformAnimation rev)
-                    ? rev.Reverse()
-                    : x));
         }
     }
 

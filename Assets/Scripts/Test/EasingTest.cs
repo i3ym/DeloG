@@ -1,15 +1,30 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 namespace DeloG
 {
     public class EasingTest : MonoBehaviour
     {
+        IEnumerator CotourineEnumerator;
         Coroutine Coroutine;
-        Animator.ITransformAnimation Sequence;
+        Animator.IReversableTransformAnimation Sequence;
 
         void Awake()
         {
-            var seq = new Animator.AnimationSequence(
+            Sequence =
+                new Animator.AnimationSequence(
+                    new Animator.TransformAnimation<Vector3>(
+                        Vector3.LerpUnclamped, Easing.Linear,
+                        new Animator.TimePercentageGetter(1f),
+                        new Animator.TransformPositionGetter(transform, Vector2.one, false)),
+
+                    new Animator.TransformAnimation<Vector3>(
+                        Vector3.LerpUnclamped, Easing.Linear,
+                        new Animator.TimePercentageGetter(1f),
+                        new Animator.TransformScaleGetter(transform, Vector3.one))
+                );
+
+            /*var seq = new Animator.AnimationSequence(
                 new Animator.TransformAnimation<Vector3>(
                     Vector3.LerpUnclamped, Easing.InBack,
                     new Animator.TimePercentageGetter(1f),
@@ -19,36 +34,25 @@ namespace DeloG
                     new Animator.TimePercentageGetter(1f),
                     new Animator.TransformScaleGetter(transform, Vector3.one)));
 
-            Sequence = new Animator.AnimationSequence(seq, seq.Reverse(), seq);
+            Sequence = new Animator.AnimationSequence(seq, seq.Reverse(), seq);*/
         }
+
+        bool xyu = true;
 
         void Update()
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                if (Coroutine != null)
-                {
-                    StopCoroutine(Coroutine);
-                    Sequence.Reset();
-                }
-
-                transform.position = Vector3.zero;
-                Coroutine = StartCoroutine(Sequence.Coroutine());
-            }
-
-            if (false && Input.GetKeyDown(KeyCode.Space))
-            {
                 if (Coroutine != null) StopCoroutine(Coroutine);
 
-                transform.position = Vector3.zero;
-                Coroutine = StartCoroutine(
-                    Animator.AnimateConcurrent(
-                        Animator.Animate(0f, 1f, 1f, Mathf.LerpUnclamped,
-                            Easing.Linear, (x) => transform.localPosition = new Vector3(x, transform.localPosition.y, transform.localPosition.z)),
-                        Animator.Animate(0f, 1f, 1f, Mathf.LerpUnclamped,
-                            Method, (y) => transform.localPosition = new Vector3(transform.localPosition.x, y, transform.localPosition.z))
-                    ));
+                if (xyu) Coroutine = StartCoroutine(Sequence.Coroutine());
+                else Coroutine = StartCoroutine(Sequence.ReverseCoroutine());
+
+                xyu = !xyu;
             }
+
+            if (Input.GetKeyDown(KeyCode.E) && Coroutine != null)
+                StopCoroutine(Coroutine);
         }
 
 
