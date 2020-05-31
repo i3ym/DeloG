@@ -7,34 +7,22 @@ namespace DeloG
     {
         IEnumerator CotourineEnumerator;
         Coroutine Coroutine;
-        Animator.IReversableTransformAnimation Sequence;
+        IReversableTransformAnimation Sequence;
 
         void Awake()
         {
             Sequence =
-                new Animator.AnimationSequence(
-                    new Animator.TransformAnimation<Vector3>(
-                        Vector3.LerpUnclamped, Easing.Linear,
-                        new Animator.TimePercentageGetter(1f),
-                        new Animator.TransformPositionGetter(transform, Vector2.one, false)),
+                new AnimationSequence(
+                    new TransformAnimation<Vector3>(
+                        Easing.Linear,
+                        new TimePercentageGetter(1f),
+                        new TransformPositionGetter(transform, Vector2.one, false)),
 
-                    new Animator.TransformAnimation<Vector3>(
-                        Vector3.LerpUnclamped, Easing.Linear,
-                        new Animator.TimePercentageGetter(1f),
-                        new Animator.TransformScaleGetter(transform, Vector3.one))
+                    new TransformAnimation<Vector3>(
+                        Easing.Linear,
+                        new TimePercentageGetter(1f),
+                        new TransformScaleGetter(transform, Vector3.one))
                 );
-
-            /*var seq = new Animator.AnimationSequence(
-                new Animator.TransformAnimation<Vector3>(
-                    Vector3.LerpUnclamped, Easing.InBack,
-                    new Animator.TimePercentageGetter(1f),
-                    new Animator.TransformPositionGetter(transform, Vector2.one, false)),
-                new Animator.TransformAnimation<Vector3>(
-                    Vector3.LerpUnclamped, Easing.OutQuad,
-                    new Animator.TimePercentageGetter(1f),
-                    new Animator.TransformScaleGetter(transform, Vector3.one)));
-
-            Sequence = new Animator.AnimationSequence(seq, seq.Reverse(), seq);*/
         }
 
         bool xyu = true;
