@@ -35,7 +35,7 @@ namespace DeloG
                     objectTo = child.parent.gameObject;
                 else objectTo = child.gameObject;
 
-                if (objectTo.GetComponent<Collider>()) continue;
+                // if (objectTo.GetComponent<Collider>()) continue;
 
                 if (IsMeshBox(meshf.mesh)) objectTo.AddComponent<BoxCollider>();
                 else
@@ -47,13 +47,18 @@ namespace DeloG
 
                 if (objectTo != child.gameObject)
                     Destroy(child.gameObject);
+                else
+                {
+                    Destroy(meshf);
+                    Destroy(child.GetComponent<MeshRenderer>());
+                }
             }
         }
 
 
         static bool IsMeshBox(Mesh mesh)
         {
-            return false;
+            return false; // TODO
         }
         static IEnumerable<Transform> GetChildrenRecirsive(Transform obj)
         {
